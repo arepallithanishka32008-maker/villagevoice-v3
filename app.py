@@ -262,4 +262,4 @@ def admin():
 @app.errorhandler(404)
 def missing(e): return render_template("404.html"), 404
 
-if __name__ == "__main__": app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
+if __name__ == "__main__": app.run(host=os.environ.get("HOST", "127.0.0.1"), port=int(os.environ.get("PORT", "5000")), debug=os.environ.get("FLASK_DEBUG") == "1")
