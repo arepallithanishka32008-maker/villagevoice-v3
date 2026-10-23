@@ -1,0 +1,2 @@
+<article><span class="resource-tag">{{ r['tag'] }}</span><h3>{{ (r['title_te'] if lang=='te' and r['title_te']) or r['title'] }}</h3><p class="muted">{{ (r['description_te'] if lang=='te' and r['description_te']) or (r['description'] or '') }}</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap">{% if r['body'] %}<a class="btn small dark" href="/resource/{{ r['id'] }}">Read</a>{% endif %}{% if r['url'] %}<a class="btn small dark" href="{{ r['url'] }}" target="_blank" rel="noopener noreferrer">Open website ↗</a>{% endif %}</div></article>

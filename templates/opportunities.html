@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block title %}Resources{% endblock %}{% block content %}<section class="intro"><h1>Resources & opportunities</h1><p>Guides written for Kaza villagers and official websites. Verify eligibility and dates with the office before you apply.</p></section>
+<section class="resources">{% for r in items %}{% include "_res.html" %}{% endfor %}</section>{% endblock %}

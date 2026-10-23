@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block content %}<section class="intro"><small>FOLLOW PROGRESS</small><h1>Track a report</h1><p>Enter the ID you received, for example VV-2026-000001.</p></section>
+<form class="filters" method="get" action="/track"><label>Report ID<input name="id" value="{{ cid }}" placeholder="VV-2026-000001" required></label><button class="btn">Track</button></form>
+{% if cid and not c %}<div class="flash error">No report found with ID {{ cid }}. Check the ID and try again.</div>{% endif %}
+{% if c %}<article class="panel"><h3>{{ c.complaint_id }} <span class="badge {{ c.status }}">{{ c_status[c.status] }}</span></h3><p class="muted">{{ c.village }}, {{ c.area }} · {{ c.category }}<br>Official reference: {{ c.official_reference or 'not yet available' }} · Updated {{ c.updated_at[:10] }}</p>
+<p><button type="button" class="outline" data-text="{{ c_status_te[c.status] }}. {{ c.complaint_id }}" onclick="speakTelugu(this)">🔊 తెలుగులో వినండి</button></p><ul class="tl">{% for h in hist %}<li><b>{{ c_status[h.status] }}</b> · {{ h.at[:10] }}<br>{{ h.note }}</li>{% endfor %}</ul></article>{% endif %}
+{% if mine %}<article class="panel tablepanel"><h3>My reports</h3><div class="tablewrap"><table><tr><th>ID</th><th>Area</th><th>Category</th><th>Status</th></tr>
+{% for r in mine %}<tr><td><a href="/track?id={{ r.complaint_id }}">{{ r.complaint_id }}</a></td><td>{{ r.area }}</td><td>{{ r.category }}</td><td><span class="badge {{ r.status }}">{{ c_status[r.status] }}</span></td></tr>{% endfor %}</table></div></article>{% endif %}{% endblock %}

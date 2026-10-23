@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}<section class="intro"><small>VERIFY MOBILE</small><h1>Verify your mobile number</h1><p>Browsing is open to everyone. A one-time password is needed only to send a report. Your number stays private.</p></section>
+{% if step == 1 %}<form class="panel form" method="post" action="/otp"><label>Mobile number<input name="phone" inputmode="numeric" autocomplete="tel-national" maxlength="10" pattern="[6-9][0-9]{9}" placeholder="10-digit number" required></label><button class="btn">Send OTP →</button></form>
+{% else %}<form class="panel form" method="post" action="/otp/verify"><p class="muted">OTP sent to +91 {{ phone[:2] }}••••••{{ phone[-2:] }}. Valid for 5 minutes.</p><label>6-digit OTP<input class="otp" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required autofocus></label>
+{% if demo %}<div class="demo"><b>Test mode:</b> your OTP is <b>{{ demo }}</b>. Real SMS is not connected yet.</div>{% endif %}
+<button class="btn">Verify and continue →</button><a class="quiet" href="/otp">Change number</a></form>{% endif %}{% endblock %}
