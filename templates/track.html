@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block content %}<section class="intro"><small>FOLLOW PROGRESS</small><h1>Track a report</h1><p>Enter the ID you received, for example VV-2026-000001.</p></section>
+{% extends "base.html" %}{% block voice %}మీ ఫిర్యాదు ఐడి రాసి, పని ఎంతవరకు వచ్చిందో తెలుసుకోండి. ఐడి వి వి తో మొదలై, సంవత్సరం, ఆరు అంకెల నంబర్ ఉంటుంది.{% endblock %}{% block content %}<section class="intro"><small>FOLLOW PROGRESS</small><h1>Track a report</h1><p>Enter the ID you received, for example VV-2026-000001.</p></section>
 <form class="filters" method="get" action="/track"><label>Report ID<input name="id" value="{{ cid }}" placeholder="VV-2026-000001" required></label><button class="btn">Track</button></form>
 {% if cid and not c %}<div class="flash error">No report found with ID {{ cid }}. Check the ID and try again.</div>{% endif %}
 {% if c %}<article class="panel"><h3>{{ c.complaint_id }} <span class="badge {{ c.status }}">{{ c_status[c.status] }}</span></h3><p class="muted">{{ c.village }}, {{ c.area }} · {{ c.category }}<br>Official reference: {{ c.official_reference or 'not yet available' }} · Updated {{ c.updated_at[:10] }}</p>

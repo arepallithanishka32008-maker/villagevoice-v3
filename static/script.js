@@ -6,24 +6,40 @@ document.querySelectorAll('form[method="post"]').forEach(f=>{if(!f.querySelector
 if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});});
 async function post(url,body){return fetch(url,{method:"POST",headers:{"Content-Type":"application/json","X-CSRF":csrfToken()},body:JSON.stringify(body)});}
 async function toTelugu(text){const r=await post("/api/translate",{text});const d=await r.json();if(!r.ok)throw new Error(d.error||"Translation failed");return d.text;}
-// ---------- Telugu voice: Google voice from the server (clear, every phone), else the device voice ----------
-let audioEl=null,voiceToken=0;
-function stopVoice(){voiceToken++;if(audioEl){audioEl.pause();audioEl=null;}if("speechSynthesis" in window)speechSynthesis.cancel();}
+// ---------- Telugu voice: short scripts, no repeats, ElevenLabs/Google from the server, device voice as last choice ----------
+let audioEl=new Audio(),voiceToken=0,unlocked=false,speaking=false;
+function unlockAudio(){if(unlocked)return;unlocked=true;audioEl.src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=";const p=audioEl.play();if(p)p.then(()=>audioEl.pause()).catch(()=>{});}   // lets phones play audio later
+["click","touchstart"].forEach(e=>document.addEventListener(e,unlockAudio,{once:true,passive:true}));
+function setSpeaking(on){speaking=on;const b=$("#listenBtn");if(b)b.textContent=on?"⏹":"🔊";}
+function stopVoice(){voiceToken++;audioEl.pause();if("speechSynthesis" in window)speechSynthesis.cancel();setSpeaking(false);}
 function voicesReady(){return new Promise(res=>{if(!("speechSynthesis" in window))return res([]);const v=speechSynthesis.getVoices();if(v.length)return res(v);speechSynthesis.onvoiceschanged=()=>res(speechSynthesis.getVoices());setTimeout(()=>res(speechSynthesis.getVoices()),1500);});}
 async function speakDevice(text,lang){if(!("speechSynthesis" in window)){toast(TE()?"ఈ బ్రౌజర్‌లో వాయిస్ పనిచేయదు. Chrome లేదా Edge వాడండి.":"Voice is not supported in this browser. Use Chrome or Edge.");return;}
 const vs=(await voicesReady()).filter(x=>x.lang.replace("_","-").toLowerCase().startsWith(lang.slice(0,2)));const v=vs.find(x=>/natural|online|google/i.test(x.name))||vs[0];
-if(!v&&lang.startsWith("te")){toast(TE()?"ఈ పరికరంలో తెలుగు వాయిస్ లేదు. కంప్యూటర్‌లో Microsoft Edge వాడండి (తెలుగు వాయిస్ ఉంటుంది). ఫోన్‌లో: Settings > Text-to-speech > Google > Install voice data > Telugu.":"No Telugu voice on this device. On a computer use Microsoft Edge (it has a Telugu voice). On a phone: Settings > Text-to-speech > Google > Install voice data > Telugu.",12000);return;}
-const u=new SpeechSynthesisUtterance(text);u.lang=lang;if(v)u.voice=v;u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u);}
-function cleanForVoice(t){return t.replace(/[·•|]/g,", ").replace(/[→↗↻©ⓘ]/g," ").replace(/[^\u0C00-\u0C7F\u200c\u200d0-9A-Za-z\s.,?!:;'"()\-]/g," ").replace(/\s+/g," ").trim();}
-function chunks(t){const parts=t.match(/[^.?!]+[.?!]*/g)||[t],out=[];let cur="";parts.forEach(p=>{if(cur&&(cur+p).length>300){out.push(cur.trim());cur=p;}else cur+=p;});if(cur.trim())out.push(cur.trim());return out;}
-async function playTelugu(text){stopVoice();const my=voiceToken,list=chunks(cleanForVoice(text).slice(0,2000));
-for(let i=0;i<list.length;i++){if(my!==voiceToken)return;let ok=false;
-try{const r=await post("/api/tts",{text:list[i]});if(r.ok){const d=await r.json();audioEl=new Audio("data:audio/mp3;base64,"+d.audio);await new Promise((res,rej)=>{audioEl.onended=res;audioEl.onerror=rej;audioEl.play().catch(rej);});ok=true;}}catch(e){}
-if(!ok){speakDevice(list.slice(i).join(" "),"te-IN");return;}}}
-async function speakTelugu(btn){const src=btn.dataset.text||(document.getElementById(btn.dataset.target)||{}).value||"";const t=src.trim();if(!t){toast(TE()?"చదవడానికి ఏమీ లేదు.":"Nothing to read yet.");return;}
-const old=btn.innerHTML;btn.disabled=true;btn.textContent="...";try{const te=/[\u0C00-\u0C7F]/.test(t)?t:await toTelugu(t);if(btn.dataset.show)document.getElementById(btn.dataset.show).textContent=te;await playTelugu(te);}catch(e){toast(e.message);}btn.disabled=false;btn.innerHTML=old;}
-async function listenPage(){try{const r=await fetch(location.pathname+location.search,{headers:{"X-Lang":"te"},credentials:"same-origin"});const d=new DOMParser().parseFromString(await r.text(),"text/html");
-d.querySelectorAll("script,style,iframe,svg,form,button").forEach(x=>x.remove());const t=((d.querySelector("main")||d.body).textContent||"").replace(/\s+/g," ").trim();if(!t){toast("Nothing to read.");return;}playTelugu(t);}catch(e){toast(TE()?"పేజీ చదవలేకపోయాం.":"Could not read this page.");}}
+if(!v&&lang.startsWith("te")){toast(TE()?"ఈ పరికరంలో తెలుగు వాయిస్ లేదు. కంప్యూటర్‌లో Microsoft Edge వాడండి. ఫోన్‌లో: Settings > Text-to-speech > Google > Install voice data > Telugu.":"No Telugu voice on this device. On a computer use Microsoft Edge. On a phone: Settings > Text-to-speech > Google > Install voice data > Telugu.",12000);return;}
+speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=lang;if(v)u.voice=v;u.rate=.85;u.onend=u.onerror=()=>setSpeaking(false);setSpeaking(true);speechSynthesis.speak(u);}
+const SAY=[[/OTP/g,"ఓటీపీ"],[/\bID\b/gi,"ఐడి"],[/GPS/g,"జీపీఎస్"],[/SMS/g,"ఎస్ఎంఎస్"],[/WhatsApp/gi,"వాట్సాప్"],[/Google Maps/gi,"గూగుల్ మ్యాప్స్"],[/VillageVoice/gi,"విలేజ్ వాయిస్"],[/PM-KISAN/gi,"పీఎం కిసాన్"],[/Aadhaar/gi,"ఆధార్"],[/MPDO/g,"ఎంపీడీఓ"],[/RBK/g,"ఆర్‌బీకే"],[/Sachivalayam/gi,"సచివాలయం"],[/Karyadarsi/gi,"కార్యదర్శి"],[/Kaza/gi,"కాజా"],[/Telugu/gi,"తెలుగు"],[/VV-(\d{4})-(\d+)/g,"వి వి $1 $2"]];
+function speakable(t){let s=t;SAY.forEach(([a,b])=>{s=s.replace(a,b);});
+s=s.replace(/[·•|]/g,", ").replace(/[→↗↻©ⓘ]/g," ").replace(/[^\u0C00-\u0C7F\u200c\u200d0-9A-Za-z\s.,?!:;'"()\-]/g," ");
+const seen=new Set(),out=[];s.split(/[.?!\n]+/).map(x=>x.replace(/\s+/g," ").trim()).forEach(x=>{if(x.length>1&&!seen.has(x)){seen.add(x);out.push(x);}});   // each sentence once
+return out.join(". ")+".";}
+function chunks(t,max=220){const sents=t.match(/[^.]+\.?/g)||[t],out=[];let cur="";const push=p=>{p=p.trim();if(p)out.push(p);};
+sents.forEach(s=>{s=s.trim();if(!s)return;
+if(s.length>max){push(cur);cur="";let part="";s.split(" ").forEach(w=>{if(part&&(part+" "+w).length>max){push(part);part=w;}else part=(part+" "+w).trim();});push(part);return;}
+if(cur&&(cur+" "+s).length>max){push(cur);cur=s;}else cur=(cur+" "+s).trim();});push(cur);return out;}
+function showSource(s){if(showSource.done||!s)return;showSource.done=true;if(/^(localhost|127\.|192\.168\.|10\.)/.test(location.hostname))toast("🔊 "+({elevenlabs:"ElevenLabs voice",google:"Google Cloud voice",free:"Free Google voice"}[s]||s),3500);}
+async function fetchAudio(text){const r=await post("/api/tts",{text});if(!r.ok)return null;const d=await r.json();showSource(d.source);return "data:audio/mp3;base64,"+d.audio;}
+async function playTelugu(text){stopVoice();const my=voiceToken,list=chunks(speakable(text).slice(0,1500));if(!list.length)return;setSpeaking(true);
+let next=fetchAudio(list[0]).catch(()=>null);
+for(let i=0;i<list.length;i++){if(my!==voiceToken)return;const src=await next;next=i+1<list.length?fetchAudio(list[i+1]).catch(()=>null):null;   // next sentence is fetched while this one plays
+if(my!==voiceToken)return;
+try{if(!src)throw 0;audioEl.src=src;await new Promise((res,rej)=>{audioEl.onended=res;audioEl.onerror=rej;audioEl.play().catch(rej);});}
+catch(e){if(my===voiceToken)speakDevice(list.slice(i).join(" "),"te-IN");return;}}
+if(my===voiceToken)setSpeaking(false);}
+async function speakTelugu(btn){if(speaking){stopVoice();return;}const src=btn.dataset.text||(document.getElementById(btn.dataset.target)||{}).value||"";const t=src.trim();if(!t){toast(TE()?"చదవడానికి ఏమీ లేదు.":"Nothing to read yet.");return;}
+const old=btn.innerHTML;btn.disabled=true;btn.textContent="...";try{const te=/[\u0C00-\u0C7F]/.test(t)?t:await toTelugu(t);if(btn.dataset.show)document.getElementById(btn.dataset.show).textContent=te;playTelugu(te);}catch(e){toast(e.message);}btn.disabled=false;btn.innerHTML=old;}
+async function listenPage(){if(speaking){stopVoice();return;}const m=document.querySelector('meta[name="voice-te"]');let t=m?m.content.trim():"";
+if(!t){try{const r=await fetch(location.pathname+location.search,{headers:{"X-Lang":"te"},credentials:"same-origin"});const d=new DOMParser().parseFromString(await r.text(),"text/html");t=[...d.querySelectorAll("main h1,main h2,main h3,main p,main li")].map(x=>x.textContent).join(". ");}catch(e){}}
+if(!t.trim()){toast(TE()?"చదవడానికి ఏమీ లేదు.":"Nothing to read on this page.");return;}playTelugu(t);}
 function dictate(btn){const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R){toast(TE()?"వాయిస్ టైపింగ్ Chrome లో పనిచేస్తుంది.":"Voice typing works in Chrome.");return;}
 const r=new R();r.lang=btn.dataset.lang||"te-IN";r.interimResults=false;const box=document.getElementById(btn.dataset.target);btn.textContent="🎙️ ...";
 r.onresult=e=>{box.value=(box.value+" "+e.results[0][0].transcript).trim();};r.onend=r.onerror=()=>{btn.textContent=btn.dataset.label;};r.start();}

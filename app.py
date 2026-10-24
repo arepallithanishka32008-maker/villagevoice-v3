@@ -49,7 +49,7 @@ def admin_only(fn):
 
 @app.context_processor
 def common():
-    return {"villages": VILLAGES, "categories": CATEGORIES, "statuses": STATUSES, "c_status": C_STATUS, "c_status_te": C_STATUS_TE, "icons": ICONS, "kaza": KAZA_DATA, "facilities": FACILITIES, "emergency": EMERGENCY, "kaza_places": KAZA_PLACES, "resources": RESOURCES,
+    return {"villages": VILLAGES, "categories": CATEGORIES, "statuses": STATUSES, "c_status": C_STATUS, "c_status_te": C_STATUS_TE, "icons": ICONS, "kaza": KAZA_DATA, "facilities": FACILITIES, "emergency": EMERGENCY, "kaza_places": KAZA_PLACES, "eleven_on": bool(os.environ.get("ELEVENLABS_API_KEY")), "resources": RESOURCES,
             "lang": g.get("lang", "en"), "csrf": session.get("csrf", ""), "resident": session.get("phone"), "resident_name": session.get("name")}
 
 def stats():

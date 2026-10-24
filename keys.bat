@@ -12,6 +12,10 @@ set SMTP_PASSWORD=
 @rem set TWILIO_SID=
 @rem set TWILIO_TOKEN=
 @rem set TWILIO_FROM=
+@rem ---- ElevenLabs Telugu voice (very natural; free plan = about 10 minutes of audio a month) ----
+@rem set ELEVENLABS_API_KEY=
+@rem set ELEVENLABS_VOICE_ID=21m00Tcm4TlvDq8ikWAM
+@rem set ELEVENLABS_MODEL=eleven_v3
 @rem ---- Clear Telugu voice (Google Cloud key) ----
 set GOOGLE_TTS_KEY=
 set GOOGLE_TRANSLATE_KEY=

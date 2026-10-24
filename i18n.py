@@ -117,6 +117,7 @@ TE.update({"This week's summary →": "ఈ వారం సారాంశం �
  "A short picture of what has happened in Kaza. Good to read aloud at a Gram Sabha.": "కాజాలో ఏం జరిగిందో చిన్న సారాంశం. గ్రామసభలో చదివి వినిపించడానికి బాగుంటుంది.", "Summary": "సారాంశం"})
 TE.update({"Nearby villages": "చుట్టుపక్కల ఊర్లు", "Mallampalli": "మల్లంపల్లి", "Bollapadu": "బొల్లపాడు", "Polavaram": "పోలవరం", "Rayavaram": "రాయవరం", "Kanchakodur": "కంచకోడుర్", "Maddipatla": "మద్దిపట్ల", "Mallavolu": "మల్లవోలు"})
 TE.update({"Open website ↗": "వెబ్‌సైట్ తెరవండి ↗"})
+TE.update({"Telugu voice by ElevenLabs": "తెలుగు వాయిస్: ElevenLabs"})
 PAT = [
  (re.compile(r"^OTP sent to \+91 (.+?)\. Valid for 5 minutes\.$"), lambda m: f"OTP +91 {m[1]} నంబర్‌కు పంపబడింది. 5 నిమిషాలు చెల్లుతుంది."),
  (re.compile(r"^Official reference: (.+?) · Updated (.+)$"), lambda m: "అధికారిక సంఖ్య: " + ("ఇంకా లేదు" if m[1] == "not yet available" else m[1]) + f" · నవీకరణ: {m[2]}"),

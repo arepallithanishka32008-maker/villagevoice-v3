@@ -385,39 +385,68 @@ def _free_tts(text):
     if len(out) < 200: raise ValueError("no audio returned")
     return out
 
+def _eleven_budget(n):
+    """Keeps ElevenLabs inside the monthly character allowance (default 9000 of the 10,000 free credits)."""
+    f = Path(__file__).with_name("tts_cache") / "eleven_usage.json"; f.parent.mkdir(exist_ok=True)
+    month = datetime.now().strftime("%Y-%m")
+    try: u = json.loads(f.read_text())
+    except Exception: u = {}
+    if u.get("month") != month: u = {"month": month, "chars": 0}
+    return u, f, u["chars"] + n <= int(os.environ.get("ELEVENLABS_MONTHLY_CHARS", "9000"))
+
+def _eleven_tts(text):
+    """Telugu voice from ElevenLabs (model eleven_v3 supports Telugu). Needs ELEVENLABS_API_KEY."""
+    voice, model = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM"), os.environ.get("ELEVENLABS_MODEL", "eleven_v3")
+    u, f, ok = _eleven_budget(len(text))
+    if not ok: raise RuntimeError("monthly ElevenLabs allowance used up")
+    req = urllib.request.Request(f"https://api.elevenlabs.io/v1/text-to-speech/{voice}?output_format=mp3_44100_128", data=json.dumps({"text": text, "model_id": model}).encode(),
+                                 headers={"xi-api-key": os.environ["ELEVENLABS_API_KEY"], "Content-Type": "application/json", "Accept": "audio/mpeg"})
+    data = urllib.request.urlopen(req, timeout=40).read()
+    if len(data) < 200: raise ValueError("no audio returned")
+    u["chars"] += len(text); f.write_text(json.dumps(u))
+    return data
+
 @bp.post("/api/tts")
 def api_tts():
-    """Telugu audio. Uses your Google Cloud key if set (best), otherwise the free Google Translate voice. Audio is cached on disk."""
+    """Telugu audio. Order: ElevenLabs (if key) -> Google Cloud (if key) -> free Google Translate voice. Audio is cached on disk."""
     import urllib.error
-    key = os.environ.get("GOOGLE_TTS_KEY") or os.environ.get("GOOGLE_TRANSLATE_KEY")
+    eleven, gkey = os.environ.get("ELEVENLABS_API_KEY"), os.environ.get("GOOGLE_TTS_KEY") or os.environ.get("GOOGLE_TRANSLATE_KEY")
     free_ok = os.environ.get("FREE_TTS", "1") == "1"
-    if not key and not free_ok: return jsonify(error="not configured"), 501
+    if not (eleven or gkey or free_ok): return jsonify(error="not configured"), 501
     text = str((request.get_json(silent=True) or {}).get("text", "")).strip()[:900]
     if not text: return jsonify(error="No text."), 400
-    voice = os.environ.get("TTS_VOICE", "te-IN-Standard-A")        # te-IN-Standard-B is the male voice
+    gvoice = os.environ.get("TTS_VOICE", "te-IN-Standard-A")        # te-IN-Standard-B is the male voice
+    evoice = os.environ.get("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM") + os.environ.get("ELEVENLABS_MODEL", "eleven_v3")
     cache = Path(__file__).with_name("tts_cache"); cache.mkdir(exist_ok=True)
-    f = cache / (hashlib.sha256(f"{'g' if key else 'f'}|{voice}|{text}".encode()).hexdigest()[:32] + ".mp3")
-    if f.exists(): return jsonify(audio=base64.b64encode(f.read_bytes()).decode())
+    path = lambda tag: cache / (hashlib.sha256(f"{tag}|{evoice if tag == 'e' else gvoice}|{text}".encode()).hexdigest()[:32] + ".mp3")
+    can_eleven = bool(eleven) and _eleven_budget(len(text))[2]
+    for tag in [t for t, on in (("e", eleven), ("g", gkey), ("f", free_ok)) if on]:
+        if tag != "e" and can_eleven: continue                       # try the best voice before reusing older fallback audio
+        if path(tag).exists(): return jsonify(audio=base64.b64encode(path(tag).read_bytes()).decode(), source={"e": "elevenlabs", "g": "google", "f": "free"}[tag])
     ip, t = request.remote_addr, time.time()
     hits = [x for x in _tts_hits.get(ip, []) if x > t - 3600]
     if len(hits) >= 120: return jsonify(error="Too many requests."), 429
     _tts_hits[ip] = hits + [t]
-    def official(v):
-        body = json.dumps({"input": {"text": text}, "voice": v, "audioConfig": {"audioEncoding": "MP3", "speakingRate": 0.9}}).encode()
-        req = urllib.request.Request("https://texttospeech.googleapis.com/v1/text:synthesize?key=" + urllib.parse.quote(key), data=body, headers={"Content-Type": "application/json"})
+    def google(v):
+        body = json.dumps({"input": {"text": text}, "voice": v, "audioConfig": {"audioEncoding": "MP3", "speakingRate": 0.85}}).encode()
+        req = urllib.request.Request("https://texttospeech.googleapis.com/v1/text:synthesize?key=" + urllib.parse.quote(gkey), data=body, headers={"Content-Type": "application/json"})
         return base64.b64decode(json.load(urllib.request.urlopen(req, timeout=10))["audioContent"])
-    data = None
-    if key:
+    data, used = None, None
+    if can_eleven:
+        try: data, used = _eleven_tts(text), "e"
+        except Exception as e: print("elevenlabs failed:", e)
+    if data is None and gkey:
         try:
-            try: data = official({"languageCode": "te-IN", "name": voice})
-            except urllib.error.HTTPError: data = official({"languageCode": "te-IN"})
+            try: data = google({"languageCode": "te-IN", "name": gvoice})
+            except urllib.error.HTTPError: data = google({"languageCode": "te-IN"})
+            used = "g"
         except Exception as e: print("google tts failed:", e)
     if data is None and free_ok:
-        try: data = _free_tts(text)
+        try: data, used = _free_tts(text), "f"
         except Exception as e: print("free tts failed:", e)
     if data is None: return jsonify(error="Voice is not available right now."), 502
-    f.write_bytes(data)
-    return jsonify(audio=base64.b64encode(data).decode())
+    path(used).write_bytes(data)
+    return jsonify(audio=base64.b64encode(data).decode(), source={"e": "elevenlabs", "g": "google", "f": "free"}[used])
 
 # ---------- reminders and voice test (admin buttons) ----------
 def remind_overdue():
@@ -437,6 +466,10 @@ def remind_overdue():
 
 def test_voice():
     import urllib.error
+    if os.environ.get("ELEVENLABS_API_KEY"):
+        try: _eleven_tts("నమస్కారం"); return "Voice: ElevenLabs Telugu voice works."
+        except urllib.error.HTTPError as e: return f"Voice: ElevenLabs rejected the request ({e.code}). " + e.read().decode("utf8", "replace")[:300] + " Other voices will be used instead."
+        except Exception as e: return f"Voice: ElevenLabs failed ({e}). Other voices will be used instead."
     key = os.environ.get("GOOGLE_TTS_KEY") or os.environ.get("GOOGLE_TRANSLATE_KEY")
     if key:
         try:

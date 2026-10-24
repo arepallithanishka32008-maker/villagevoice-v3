@@ -1,4 +1,4 @@
-{% extends "base.html" %}{% block title %}Search{% endblock %}{% block content %}
+{% extends "base.html" %}{% block voice %}సమస్య, ఊరి పేరు, పథకం లేదా ఫిర్యాదు ఐడి రాసి వెతకండి.{% endblock %}{% block title %}Search{% endblock %}{% block content %}
 <section class="intro"><h1>Search</h1><p>Type a word like road, water, a place name, a scheme or a report ID.</p></section>
 <form class="search" action="/search" role="search"><input type="search" name="q" value="{{ q }}" placeholder="Search a problem, place or scheme" aria-label="Search" autofocus><button class="btn dark">Search</button></form>
 {% if q %}{% if not (res.problems or res.places or res.projects or res.links) %}<div class="notice">Nothing found. Try another word.</div>{% endif %}
