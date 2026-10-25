@@ -118,7 +118,13 @@ TE.update({"This week's summary →": "ఈ వారం సారాంశం �
 TE.update({"Nearby villages": "చుట్టుపక్కల ఊర్లు", "Mallampalli": "మల్లంపల్లి", "Bollapadu": "బొల్లపాడు", "Polavaram": "పోలవరం", "Rayavaram": "రాయవరం", "Kanchakodur": "కంచకోడుర్", "Maddipatla": "మద్దిపట్ల", "Mallavolu": "మల్లవోలు"})
 TE.update({"Open website ↗": "వెబ్‌సైట్ తెరవండి ↗"})
 TE.update({"Telugu voice by ElevenLabs": "తెలుగు వాయిస్: ElevenLabs"})
+TE.update({"Listen": "వినండి", "Open summary →": "సారాంశం చూడండి →", "See new reports, problems fixed and how long fixes take.": "కొత్త ఫిర్యాదులు, పరిష్కారమైనవి, పరిష్కారానికి పట్టే రోజులు చూడండి.", "＋ Report": "＋ చెప్పండి"})
+TE.update({"Version": "వెర్షన్"})
+TE.update({"Enter the ID you received, for example VV-2026-000001.": "మీకు వచ్చిన ఐడి రాయండి, ఉదాహరణకు VV-2026-000001."})
+TE.update({"＋ Report a problem": "＋ సమస్య చెప్పండి"})
 PAT = [
+ (re.compile(r"^Version (\d+) ·$"), lambda m: f"వెర్షన్ {m[1]} ·"),
+ (re.compile(r"^Most reported kind of problem: (.+)$"), lambda m: "ఎక్కువగా వచ్చిన సమస్య రకం: " + TE.get(m[1], m[1])),
  (re.compile(r"^OTP sent to \+91 (.+?)\. Valid for 5 minutes\.$"), lambda m: f"OTP +91 {m[1]} నంబర్‌కు పంపబడింది. 5 నిమిషాలు చెల్లుతుంది."),
  (re.compile(r"^Official reference: (.+?) · Updated (.+)$"), lambda m: "అధికారిక సంఖ్య: " + ("ఇంకా లేదు" if m[1] == "not yet available" else m[1]) + f" · నవీకరణ: {m[2]}"),
  (re.compile(r"^No report found with ID (.+?)\. Check the ID and try again\.$"), lambda m: f"ఐడి {m[1]} తో రిపోర్ట్ కనబడలేదు. ఐడిని సరిచూసి మళ్లీ ప్రయత్నించండి."),

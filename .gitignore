@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+villagevoice.db
+.secret_key
+keys.bat
+static/uploads/*
+!static/uploads/.keep
+tts_cache/

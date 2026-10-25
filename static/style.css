@@ -78,3 +78,28 @@ html[lang=te] body{font-size:18px;line-height:1.85}html[lang=te] h1,html[lang=te
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 .vmsg{flex:1;display:grid;place-content:center;justify-items:center;gap:16px;text-align:center;padding:24px;font-size:17px}.vmsg[hidden]{display:none}.viewer iframe[hidden]{display:none}
 .kz-label{background:#fff;border:0;border-radius:8px;box-shadow:0 1px 5px #0005;font-weight:700;color:#173f35;padding:2px 8px}.nb-label{background:#ffffffd9;border:0;border-radius:6px;box-shadow:none;font-size:11px;color:#333;padding:1px 6px}.kz-label:before,.nb-label:before{display:none}
+
+.summary-card{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:18px;padding:18px 20px;border-radius:var(--r);background:linear-gradient(135deg,#fff6dc,#ffe7a0);border:2px solid var(--gold);box-shadow:var(--sh)}
+.sc-text{display:flex;align-items:center;gap:14px}.sc-text i{font-style:normal;font-size:34px}.sc-text b{display:block;font-size:1.15rem}.sc-text span{display:block;color:#5b4a12;font-size:14px}
+.nav-cta{background:var(--gold);color:var(--ink)!important;font-weight:700}.top nav>a.nav-cta:hover{background:#e29a15}
+.hdr-report{background:var(--gold);color:var(--ink);border-radius:99px;padding:7px 14px;font:700 13px inherit;white-space:nowrap}
+.audio-fab{position:fixed;right:16px;bottom:24px;z-index:1100;display:flex;flex-direction:column;align-items:center;border:0;background:none;cursor:pointer;font:inherit;padding:0}
+.audio-fab .af-main{display:flex;align-items:center;gap:8px;background:var(--g);color:#fff;border-radius:99px;padding:10px 18px;box-shadow:0 8px 22px #0005;font-weight:700}
+.audio-fab .hand{font-style:normal;font-size:32px;line-height:1;animation:nudge 1.2s ease-in-out infinite}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+@media(max-width:1000px){.audio-fab{bottom:92px}}
+
+/* v15: visible Report button at the top, blinking audio buttons */
+.hdr-report{display:inline-block;background:var(--gold);color:var(--ink)!important;border-radius:99px;padding:8px 16px;font:700 14px inherit;white-space:nowrap;box-shadow:0 2px 8px #f0a81e66}
+.hdr-report .short{display:none}
+@media(max-width:700px){.hdr-report .long{display:none}.hdr-report .short{display:inline}.hdr-report{padding:8px 12px}}
+@media(max-width:520px){.navright .pill.on{display:none}.navright{gap:5px}.top{padding:10px 10px;gap:8px}}
+@keyframes blinkring{0%{box-shadow:0 0 0 0 rgba(240,168,30,.95),0 6px 16px #0004}70%{box-shadow:0 0 0 18px rgba(240,168,30,0),0 6px 16px #0004}100%{box-shadow:0 0 0 0 rgba(240,168,30,0),0 6px 16px #0004}}
+@keyframes blinkgreen{0%,100%{background:#17573b;color:#fff}50%{background:#f0a81e;color:#14261c}}
+@keyframes blinkpill{0%,100%{background:#fff;color:#14261c}50%{background:#f0a81e;color:#14261c}}
+.audio-fab .af-main{animation:blinkring 1.5s infinite,blinkgreen 1.5s infinite!important}
+#listenBtn{animation:blinkring 1.5s infinite,blinkpill 1.5s infinite!important}
+.audio-fab.speaking .af-main,#listenBtn.speaking{animation:none!important}
+.audio-fab .hand{animation:nudge 1.2s ease-in-out infinite!important}
+
+.kz-label{font-size:12px;padding:1px 7px}.nb-label{font-size:10px}

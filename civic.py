@@ -220,8 +220,7 @@ def report():
     try:
         lat, lng = float(f.get("latitude")), float(f.get("longitude"))
         B = KAZA_MAXBOUNDS
-        ok_pin = in_kaza(lat, lng) if village in KAZA_PLACES else (B[0][0] <= lat <= B[1][0] and B[0][1] <= lng <= B[1][1])
-        if not ok_pin: return bad("The pin is outside the area for the village you chose. For Kaza places, put it inside the red outline. For other villages, put it near that village.")
+        if not (B[0][0] <= lat <= B[1][0] and B[0][1] <= lng <= B[1][1]): return bad("The pin is too far away. Please tap a spot on the map near the problem.")
     except (TypeError, ValueError): lat = lng = None
     try: acc = float(f.get("accuracy") or 0) if lat is not None else None
     except ValueError: acc = None
