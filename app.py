@@ -17,7 +17,10 @@ def _secret():
     if not p.exists(): p.write_text(secrets.token_hex(32))
     return p.read_text().strip()
 
-APP_VERSION = "16"
+def _asset_v():          # changes by itself whenever style.css or script.js change, so browsers never show old files
+    try: return int(max((Path(__file__).parent / "static" / f).stat().st_mtime for f in ("style.css", "script.js")))
+    except OSError: return 0
+
 app = Flask(__name__)
 app.secret_key = _secret()
 app.config.update(MAX_CONTENT_LENGTH=6 * 1024 * 1024, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax",
@@ -50,7 +53,7 @@ def admin_only(fn):
 
 @app.context_processor
 def common():
-    return {"villages": VILLAGES, "categories": CATEGORIES, "statuses": STATUSES, "c_status": C_STATUS, "c_status_te": C_STATUS_TE, "icons": ICONS, "kaza": KAZA_DATA, "facilities": FACILITIES, "emergency": EMERGENCY, "kaza_places": KAZA_PLACES, "version": APP_VERSION, "eleven_on": bool(os.environ.get("ELEVENLABS_API_KEY")), "resources": RESOURCES,
+    return {"villages": VILLAGES, "categories": CATEGORIES, "statuses": STATUSES, "c_status": C_STATUS, "c_status_te": C_STATUS_TE, "icons": ICONS, "kaza": KAZA_DATA, "facilities": FACILITIES, "emergency": EMERGENCY, "kaza_places": KAZA_PLACES, "asset_v": _asset_v(), "eleven_on": bool(os.environ.get("ELEVENLABS_API_KEY")), "resources": RESOURCES,
             "lang": g.get("lang", "en"), "csrf": session.get("csrf", ""), "resident": session.get("phone"), "resident_name": session.get("name")}
 
 def stats():

@@ -103,3 +103,6 @@ html[lang=te] body{font-size:18px;line-height:1.85}html[lang=te] h1,html[lang=te
 .audio-fab .hand{animation:nudge 1.2s ease-in-out infinite!important}
 
 .kz-label{font-size:12px;padding:1px 7px}.nb-label{font-size:10px}
+
+.hdr-report{margin-left:4px}
+@media(max-width:1320px){.top nav>a{padding:8px 8px;font-size:13px}.hsearch{max-width:190px}.hdr-report{padding:8px 13px;font-size:13px}}
