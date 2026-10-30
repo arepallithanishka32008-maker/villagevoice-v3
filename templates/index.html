@@ -1,16 +1,273 @@
-{% extends "base.html" %}{% block voice %}విలేజ్ వాయిస్ కాజా ఊరి ప్రజల వేదిక. ఊరిలో సమస్య ఉంటే ఫోటో తీసి, మ్యాప్‌లో ఆ చోటు చూపించి చెప్పండి. వాలంటీర్లు చూసి నిర్ధారిస్తారు. సచివాలయం కార్యదర్శికి వెంటనే సమాచారం వెళ్తుంది. మీ ఫిర్యాదు ఎంతవరకు వచ్చిందో ఐడితో చూడవచ్చు. అత్యవసరం అయితే ఒకటి ఒకటి రెండు నంబర్‌కు ఫోన్ చేయండి.{% endblock %}{% block content %}
-<section class="hero"><div class="wrap"><span class="tagline">Community initiative · Kaza, Movva Mandal, Krishna District</span>
-<h1>Your village.<br>Your voice.</h1><p class="lead">Report a problem with a photo and the exact spot on the map. Volunteers check it, the Sachivalayam sees it, and you can follow it until it is fixed.</p>
-<form class="search" action="/search" role="search"><input type="search" name="q" placeholder="Search a problem, place or scheme" aria-label="Search"><button class="btn dark">Search</button></form>
-<div class="tiles"><a class="tile primary" href="/report"><i>📣</i><b>Report a problem</b><span>Photo, pin, done in 2 minutes</span></a>
-<a class="tile" href="/map"><i>🗺️</i><b>Village map</b><span>Satellite view of Kaza</span></a>
-<a class="tile" href="/track"><i>🔎</i><b>Track a report</b><span>Check progress with your ID</span></a>
-<button type="button" class="tile" data-text="ఊరిలో సమస్య ఉంటే ఇలా చెప్పండి. ముందు మీ మొబైల్ నంబర్ ఇచ్చి, వచ్చిన ఓటీపీ నమోదు చేయండి. తర్వాత మ్యాప్‌లో సమస్య ఉన్న చోట నొక్కండి. సమస్య రాయండి, లేదా మైక్ నొక్కి మాట్లాడండి. ఫోటో పెట్టండి. ఫిర్యాదు పంపండి బటన్ నొక్కండి. మీకు ఒక నంబర్ వస్తుంది. ఆ నంబర్‌తో పని ఎంతవరకు వచ్చిందో చూడవచ్చు. మీ ఫిర్యాదు వెంటనే సచివాలయం కార్యదర్శికి వెళ్తుంది." onclick="speakTelugu(this)"><i>🔊</i><b>Listen in Telugu</b><span>How to report, spoken</span></button></div></div></section>
-<section class="summary-card"><div class="sc-text"><i>📊</i><div><b>This week's summary</b><span>See new reports, problems fixed and how long fixes take.</span></div></div><a class="btn dark" href="/summary">Open summary →</a></section>
-<section class="strip"><div class="stat"><b>{{ cs.total }}</b><span>Reports received</span></div><div class="stat"><b>{{ cs.public }}</b><span>Checked by volunteers</span></div><div class="stat"><b>{{ cs.progress }}</b><span>With offices</span></div><div class="stat"><b>{{ cs.resolved }}</b><span>Resolved</span></div></section>
-<section class="block"><h2>Important numbers</h2><p class="muted">Tap a number to call.</p><div class="sos">{% for n,label,ic in emergency %}<a href="tel:{{ n }}">{{ ic }} <b>{{ n }}</b> <span>{{ label }}</span></a>{% endfor %}</div></section>
-<section class="block"><h2>How it works</h2><div class="steps"><div class="step"><i>📱</i><b>Verify your mobile</b><span>Browse freely. An OTP is needed only to send a report.</span></div><div class="step"><i>📍</i><b>Pin the exact spot</b><span>Drop a pin on the map and add a photo.</span></div><div class="step"><i>✅</i><b>Volunteers check it</b><span>Duplicates are merged and facts are confirmed.</span></div><div class="step"><i>🏛️</i><b>Sachivalayam acts</b><span>The Karyadarsi gets directions and updates the status you can see.</span></div></div></section>
-<section class="block"><div class="sectionhead"><h2>Latest checked problems</h2><a class="quiet" href="/reports">See all problems →</a></div><div class="feed">{% for r in feed %}{% include "_card.html" %}{% else %}<article class="panel"><b>No checked reports yet.</b> <a href="/report">Report the first problem in your village.</a></article>{% endfor %}</div></section>
-{% if cs.by_cat %}<section class="block"><h2>Problems at a glance</h2><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))"><div class="card bars"><h3>By category</h3>{% for x in cs.by_cat %}<div class="bar"><div>{{ x.label }}</div><span style="width:{{ (x.n / cs.by_cat[0].n * 100)|round }}%"></span><b>{{ x.n }}</b></div>{% endfor %}</div><div class="card bars"><h3>By status</h3>{% for x in cs.by_status %}<div class="bar"><div>{{ x.label }}</div><span style="width:{{ (x.n / cs.by_status[0].n * 100)|round }}%"></span><b>{{ x.n }}</b></div>{% endfor %}</div></div></section>{% endif %}
-{% if recent %}<section class="block"><div class="sectionhead"><h2>Development projects</h2><a class="quiet" href="/projects">All projects →</a></div><div class="cards">{% for p in recent %}<article class="project"><div class="pills"><span>{{p['category']}}</span>{% if p['is_demo'] %}<i>DEMO</i>{% endif %}</div><h3>{{p['title']}}</h3><p class="muted">{{p['description']}}</p><div class="meta"><span>{{p['village']}}</span><b>{{p['status']}}</b></div><div class="track"><i style="width:{{p['progress']}}%"></i></div></article>{% endfor %}</div></section>{% endif %}
-<section class="callout"><div><h3>See a problem in your village?</h3><p>It takes two minutes. Add the spot on the map and a photo.</p></div><a class="whitebtn" href="/report">Report a problem</a></section>{% endblock %}
+{% extends "base.html" %}
+
+{% block voice %}
+విలేజ్ వాయిస్ కాజా ఊరి ప్రజల వేదిక. ఊరిలో సమస్య ఉంటే ఫోటో తీసి, మ్యాప్‌లో ఆ చోటు చూపించి చెప్పండి. వాలంటీర్లు చూసి నిర్ధారిస్తారు. సచివాలయం కార్యదర్శికి వెంటనే సమాచారం వెళ్తుంది. మీ ఫిర్యాదు ఎంతవరకు వచ్చిందో ఐడితో చూడవచ్చు. అత్యవసరం అయితే ఒకటి ఒకటి రెండు నంబర్‌కు ఫోన్ చేయండి.
+{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="wrap">
+        <span class="tagline">
+            Community initiative · Kaza, Movva Mandal, Krishna District
+        </span>
+
+        <h1>
+            Your village.<br>
+            Your voice.
+        </h1>
+
+        <p class="lead">
+            Report a problem with a photo and the exact spot on the map.
+            Volunteers check it, the Sachivalayam sees it, and you can
+            follow it until it is fixed.
+        </p>
+
+        <form class="search" action="/search" role="search">
+            <input
+                type="search"
+                name="q"
+                placeholder="Search a problem, place or scheme"
+                aria-label="Search"
+            >
+            <button class="btn dark">Search</button>
+        </form>
+
+        <div class="tiles">
+            <a class="tile primary" href="/report">
+                <i>📣</i>
+                <b>Report a problem</b>
+                <span>Photo, pin, done in 2 minutes</span>
+            </a>
+
+            <a class="tile" href="/map">
+                <i>🗺️</i>
+                <b>Village map</b>
+                <span>Satellite view of Kaza</span>
+            </a>
+
+            <a class="tile" href="/track">
+                <i>🔎</i>
+                <b>Track a report</b>
+                <span>Check progress with your ID</span>
+            </a>
+
+            <button
+                type="button"
+                class="tile"
+                data-text="ఊరిలో సమస్య ఉంటే ఇలా చెప్పండి. ముందు మీ మొబైల్ నంబర్ ఇచ్చి, వచ్చిన ఓటీపీ నమోదు చేయండి. తర్వాత మ్యాప్‌లో సమస్య ఉన్న చోట నొక్కండి. సమస్య రాయండి, లేదా మైక్ నొక్కి మాట్లాడండి. ఫోటో పెట్టండి. ఫిర్యాదు పంపండి బటన్ నొక్కండి. మీకు ఒక నంబర్ వస్తుంది. ఆ నంబర్‌తో పని ఎంతవరకు వచ్చిందో చూడవచ్చు. మీ ఫిర్యాదు వెంటనే సచివాలయం కార్యదర్శికి వెళ్తుంది."
+                onclick="speakTelugu(this)"
+            >
+                <i>🔊</i>
+                <b>Listen in Telugu</b>
+                <span>How to report, spoken</span>
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="summary-card">
+    <div class="sc-text">
+        <i>📊</i>
+        <div>
+            <b>This week's summary</b>
+            <span>
+                See new reports, problems fixed and how long fixes take.
+            </span>
+        </div>
+    </div>
+
+    <a class="btn dark" href="/summary">
+        Open summary →
+    </a>
+</section>
+
+<section class="strip">
+    <div class="stat">
+        <b>{{ cs.total }}</b>
+        <span>Reports received</span>
+    </div>
+
+    <div class="stat">
+        <b>{{ cs.public }}</b>
+        <span>Checked by volunteers</span>
+    </div>
+
+    <div class="stat">
+        <b>{{ cs.progress }}</b>
+        <span>With offices</span>
+    </div>
+
+    <div class="stat">
+        <b>{{ cs.resolved }}</b>
+        <span>Resolved</span>
+    </div>
+</section>
+
+<section class="block">
+    <h2>Important numbers</h2>
+    <p class="muted">Tap a number to call.</p>
+
+    <div class="sos">
+        {% for n,label,ic in emergency %}
+            <a href="tel:{{ n }}">
+                {{ ic }}
+                <b>{{ n }}</b>
+                <span>{{ label }}</span>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="block">
+    <h2>How it works</h2>
+
+    <div class="steps">
+        <div class="step">
+            <i>📱</i>
+            <b>Verify your mobile</b>
+            <span>
+                Browse freely. An OTP is needed only to send a report.
+            </span>
+        </div>
+
+        <div class="step">
+            <i>📍</i>
+            <b>Pin the exact spot</b>
+            <span>Drop a pin on the map and add a photo.</span>
+        </div>
+
+        <div class="step">
+            <i>✅</i>
+            <b>Volunteers check it</b>
+            <span>
+                Duplicates are merged and facts are confirmed.
+            </span>
+        </div>
+
+        <div class="step">
+            <i>🏛️</i>
+            <b>Sachivalayam acts</b>
+            <span>
+                The Karyadarsi gets directions and updates the status
+                you can see.
+            </span>
+        </div>
+    </div>
+</section>
+
+<section class="block">
+    <div class="sectionhead">
+        <h2>Latest checked problems</h2>
+        <a class="quiet" href="/reports">See all problems →</a>
+    </div>
+
+    <div class="feed">
+        {% for r in feed %}
+            {% include "_card.html" %}
+        {% else %}
+            <article class="panel">
+                <b>No checked reports yet.</b>
+                <a href="/report">
+                    Report the first problem in your village.
+                </a>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+
+{% if cs.by_cat %}
+    <section class="block">
+        <h2>Problems at a glance</h2>
+
+        <div
+            class="grid"
+            style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))"
+        >
+            <div class="card bars">
+                <h3>By category</h3>
+
+                {% for x in cs.by_cat %}
+                    <div class="bar">
+                        <div>{{ x.label }}</div>
+
+                        <span
+                            style="width:{{ (x.n / cs.by_cat[0].n * 100)|round }}%"
+                        ></span>
+
+                        <b>{{ x.n }}</b>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="card bars">
+                <h3>By status</h3>
+
+                {% for x in cs.by_status %}
+                    <div class="bar">
+                        <div>{{ x.label }}</div>
+
+                        <span
+                            style="width:{{ (x.n / cs.by_status[0].n * 100)|round }}%"
+                        ></span>
+
+                        <b>{{ x.n }}</b>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+{% if recent %}
+    <section class="block">
+        <div class="sectionhead">
+            <h2>Development projects</h2>
+            <a class="quiet" href="/projects">All projects →</a>
+        </div>
+
+        <div class="cards">
+            {% for p in recent %}
+                <article class="project">
+                    <div class="pills">
+                        <span>{{p['category']}}</span>
+
+                        {% if p['is_demo'] %}
+                            <i>DEMO</i>
+                        {% endif %}
+                    </div>
+
+                    <h3>{{p['title']}}</h3>
+
+                    <p class="muted">
+                        {{p['description']}}
+                    </p>
+
+                    <div class="meta">
+                        <span>{{p['village']}}</span>
+                        <b>{{p['status']}}</b>
+                    </div>
+
+                    <div class="track">
+                        <i style="width:{{p['progress']}}%"></i>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+<section class="callout">
+    <div>
+        <h3>See a problem in your village?</h3>
+        <p>
+            It takes two minutes. Add the spot on the map and a photo.
+        </p>
+    </div>
+
+    <a class="whitebtn" href="/report">
+        Report a problem
+    </a>
+</section>
+
+{% endblock %}

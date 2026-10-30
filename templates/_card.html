@@ -1,2 +1,50 @@
-<article class="card report"><div class="rc-top"><span class="ico">{{ icons.get(r['category'], '📌') }}</span><div><b>{{ r['category'] }}</b><small>{{ r['village'] }}, {{ r['area'] }}</small></div><span class="badge {{ r['status'] }}">{{ c_status[r['status']] }}</span></div>
-<div class="rc-bot"><button type="button" class="outline sm" onclick="voteMe('{{ r['complaint_id'] }}',this)">👍 <span class="n">{{ r['votes'] }}</span> <span>Me too</span></button>{% if r['latitude'] %}<a class="outline sm" href="{{ dir_url(r) }}" target="_blank" rel="noopener noreferrer">Directions ↗</a>{% endif %}<a class="outline sm" href="/track?id={{ r['complaint_id'] }}">Track</a><span class="when">{{ r['created_at'][:10] }}</span></div></article>
+<article class="card report">
+    <div class="rc-top">
+        <span class="ico">
+            {{ icons.get(r['category'], '📌') }}
+        </span>
+
+        <div>
+            <b>{{ r['category'] }}</b>
+            <small>{{ r['village'] }}, {{ r['area'] }}</small>
+        </div>
+
+        <span class="badge {{ r['status'] }}">
+            {{ c_status[r['status']] }}
+        </span>
+    </div>
+
+    <div class="rc-bot">
+        <button
+            type="button"
+            class="outline sm"
+            onclick="voteMe(&quot;{{ r['complaint_id'] }}&quot;, this)"
+        >
+            👍
+            <span class="n">{{ r['votes'] }}</span>
+            <span>Me too</span>
+        </button>
+
+        {% if r['latitude'] %}
+            <a
+                class="outline sm"
+                href="{{ dir_url(r) }}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Directions ↗
+            </a>
+        {% endif %}
+
+        <a
+            class="outline sm"
+            href="/track?id={{ r['complaint_id'] }}"
+        >
+            Track
+        </a>
+
+        <span class="when">
+            {{ r['created_at'][:10] }}
+        </span>
+    </div>
+</article>

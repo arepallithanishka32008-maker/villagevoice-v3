@@ -1,2 +1,49 @@
-{% extends "base.html" %}{% block voice %}మీ ఫిర్యాదు నమోదైంది. మీకు ఒక ఐడి వచ్చింది. ఆ ఐడి భద్రంగా ఉంచుకోండి. వాలంటీర్లు చూసి నిర్ధారించాక మ్యాప్‌లో కనిపిస్తుంది. ఈ ఐడితో ఎప్పుడైనా స్థితి చూడవచ్చు.{% endblock %}{% block content %}<section class="intro"><small>REPORT RECEIVED</small><h1>Your report is saved</h1><p>Keep this ID. Volunteers will check your report, and once verified it appears on the map and dashboard.</p>
-<p><span class="idbox" id="trackingCode">{{ cid }}</span></p><div class="actions"><button class="outline" onclick="copyTracking()">Copy ID</button><a class="btn" href="/track?id={{ cid }}">Track this report →</a><a class="quiet" href="/report">Report another</a>{% if located %}<a class="outline" href="https://www.google.com/maps/dir/?api=1&destination={{ lat }},{{ lng }}" target="_blank" rel="noopener noreferrer">Directions to the spot</a>{% endif %}</div></section>{% endblock %}
+{% extends "base.html" %}
+
+{% block voice %}
+మీ ఫిర్యాదు నమోదైంది. మీకు ఒక ఐడి వచ్చింది. ఆ ఐడి భద్రంగా ఉంచుకోండి. వాలంటీర్లు చూసి నిర్ధారించాక మ్యాప్‌లో కనిపిస్తుంది. ఈ ఐడితో ఎప్పుడైనా స్థితి చూడవచ్చు.
+{% endblock %}
+
+{% block content %}
+
+<section class="intro">
+    <small>REPORT RECEIVED</small>
+
+    <h1>Your report is saved</h1>
+
+    <p>
+        Keep this ID. Volunteers will check your report, and once verified
+        it appears on the map and dashboard.
+    </p>
+
+    <p>
+        <span class="idbox" id="trackingCode">{{ cid }}</span>
+    </p>
+
+    <div class="actions">
+        <button class="outline" onclick="copyTracking()">
+            Copy ID
+        </button>
+
+        <a class="btn" href="/track?id={{ cid }}">
+            Track this report →
+        </a>
+
+        <a class="quiet" href="/report">
+            Report another
+        </a>
+
+        {% if located %}
+            <a
+                class="outline"
+                href="https://www.google.com/maps/dir/?api=1&destination={{ lat }},{{ lng }}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Directions to the spot
+            </a>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

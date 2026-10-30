@@ -1,9 +1,178 @@
-{% extends "base.html" %}{% block content %}<section class="intro"><small>GRAMA SACHIVALAYAM</small><h1>Village problems</h1><p>Volunteers have checked these reports. Open directions, read in Telugu, and update the status so villagers can see progress.</p>
-<div class="actions"><a class="btn" href="/officer/print" target="_blank">Print report</a><form method="post" action="/officer/logout"><button class="outline">Sign out</button></form></div></section>
-<p class="muted"><a href="/officer">Open</a> · {% for k in ['reported','verified','sent','acknowledged','in_progress','resolved'] %}<a href="/officer?status={{k}}">{{ c_status[k] }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
-<article class="panel tablepanel"><div class="tablewrap"><table><tr><th>Report</th><th>Problem</th><th>Where / evidence</th><th>Update</th></tr>
-{% for r in rows %}<tr><td>{{r['complaint_id']}}<small>{{r['age']}} <span>days open</span>{% if r['age'] >= 7 and r['status'] != 'resolved' %} <span class="badge rejected">Overdue</span>{% endif %}</small><span class="badge {{r['status']}}">{{c_status[r['status']]}}</span></td>
-<td><b>{{r['category']}}</b><br>{{r['description']}}<div class="muted" id="te{{r['id']}}"></div><button type="button" class="outline small" data-text="{{r['description']}}" data-show="te{{r['id']}}" onclick="speakTelugu(this)">🔊 తెలుగు</button></td>
-<td>{{r['village']}}, {{r['area']}}<br>{% if r['latitude'] %}<a href="{{ dir_url(r) }}" target="_blank" rel="noopener noreferrer"><b>Get directions ↗</b></a><br>{% endif %}{% if r['photo'] %}<a href="/static/uploads/{{r['photo']}}" target="_blank" rel="noopener"><img class="thumb" src="/static/uploads/{{r['photo']}}" alt="Photo of the problem"></a>{% endif %}<a href="{{ share_url(r) }}" target="_blank" rel="noopener noreferrer">Share on WhatsApp</a></td>
-<td><form class="inline" method="post" action="/officer/update" style="flex-wrap:wrap"><input type="hidden" name="cid" value="{{r['complaint_id']}}"><select name="status">{% for k in ['acknowledged','in_progress','resolved','rejected'] %}<option value="{{k}}" {{ 'selected' if r['status']==k }}>{{c_status[k]}}</option>{% endfor %}</select><input name="official_reference" placeholder="Grievance / ref no." value="{{r['official_reference'] or ''}}" style="width:140px"><input name="note" placeholder="Note shown to villagers" style="width:170px"><button class="btn small">Save</button></form></td></tr>
-{% else %}<tr><td colspan="4">No reports in this list.</td><td></td><td></td><td></td></tr>{% endfor %}</table></div></article>{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="intro">
+    <small>GRAMA SACHIVALAYAM</small>
+
+    <h1>Village problems</h1>
+
+    <p>
+        Volunteers have checked these reports. Open directions, read in Telugu,
+        and update the status so villagers can see progress.
+    </p>
+
+    <div class="actions">
+        <a class="btn" href="/officer/print" target="_blank">
+            Print report
+        </a>
+
+        <form method="post" action="/officer/logout">
+            <button class="outline">Sign out</button>
+        </form>
+    </div>
+</section>
+
+<p class="muted">
+    <a href="/officer">Open</a> ·
+
+    {% for k in ['reported', 'verified', 'sent', 'acknowledged', 'in_progress', 'resolved'] %}
+        <a href="/officer?status={{ k }}">{{ c_status[k] }}</a>
+
+        {% if not loop.last %}
+            ·
+        {% endif %}
+    {% endfor %}
+</p>
+
+<article class="panel tablepanel">
+    <div class="tablewrap">
+        <table>
+            <tr>
+                <th>Report</th>
+                <th>Problem</th>
+                <th>Where / evidence</th>
+                <th>Update</th>
+            </tr>
+
+            {% for r in rows %}
+            <tr>
+                <td>
+                    {{ r['complaint_id'] }}
+
+                    <small>
+                        {{ r['age'] }}
+                        <span>days open</span>
+
+                        {% if r['age'] >= 7 and r['status'] != 'resolved' %}
+                            <span class="badge rejected">Overdue</span>
+                        {% endif %}
+                    </small>
+
+                    <span class="badge {{ r['status'] }}">
+                        {{ c_status[r['status']] }}
+                    </span>
+                </td>
+
+                <td>
+                    <b>{{ r['category'] }}</b>
+                    <br>
+                    {{ r['description'] }}
+
+                    <div class="muted" id="te{{ r['id'] }}"></div>
+
+                    <button
+                        type="button"
+                        class="outline small"
+                        data-text="{{ r['description'] }}"
+                        data-show="te{{ r['id'] }}"
+                        onclick="speakTelugu(this)"
+                    >
+                        🔊 తెలుగు
+                    </button>
+                </td>
+
+                <td>
+                    {{ r['village'] }}, {{ r['area'] }}
+
+                    <br>
+
+                    {% if r['latitude'] %}
+                        <a
+                            href="{{ dir_url(r) }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <b>Get directions ↗</b>
+                        </a>
+                        <br>
+                    {% endif %}
+
+                    {% if r['photo'] %}
+                        <a
+                            href="/static/uploads/{{ r['photo'] }}"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            <img
+                                class="thumb"
+                                src="/static/uploads/{{ r['photo'] }}"
+                                alt="Photo of the problem"
+                            >
+                        </a>
+                    {% endif %}
+
+                    <a
+                        href="{{ share_url(r) }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Share on WhatsApp
+                    </a>
+                </td>
+
+                <td>
+                    <form
+                        class="inline"
+                        method="post"
+                        action="/officer/update"
+                        style="flex-wrap:wrap"
+                    >
+                        <input
+                            type="hidden"
+                            name="cid"
+                            value="{{ r['complaint_id'] }}"
+                        >
+
+                        <select name="status">
+                            {% for k in ['acknowledged', 'in_progress', 'resolved', 'rejected'] %}
+                                <option
+                                    value="{{ k }}"
+                                    {{ 'selected' if r['status'] == k }}
+                                >
+                                    {{ c_status[k] }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <input
+                            name="official_reference"
+                            placeholder="Grievance / ref no."
+                            value="{{ r['official_reference'] or '' }}"
+                            style="width:140px"
+                        >
+
+                        <input
+                            name="note"
+                            placeholder="Note shown to villagers"
+                            style="width:170px"
+                        >
+
+                        <button class="btn small">Save</button>
+                    </form>
+                </td>
+            </tr>
+
+            {% else %}
+            <tr>
+                <td colspan="4">No reports in this list.</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</article>
+
+{% endblock %}

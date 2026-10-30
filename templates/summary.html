@@ -1,5 +1,67 @@
-{% extends "base.html" %}{% block voice %}{{ te }}{% endblock %}{% block title %}Summary{% endblock %}{% block content %}
-<section class="intro"><h1>This week's summary</h1><p>A short picture of what has happened in Kaza. Good to read aloud at a Gram Sabha.</p></section>
-<section class="strip"><div class="stat"><b>{{ s.week }}</b><span>New reports this week</span></div><div class="stat"><b>{{ s.checked }}</b><span>Checked by volunteers</span></div><div class="stat"><b>{{ s.resolved }}</b><span>Resolved</span></div><div class="stat"><b>{{ s.overdue }}</b><span>Open for 7+ days</span></div></section>
-<article class="panel" style="margin-top:18px"><h3>Average days to fix</h3><p style="font-size:1.6rem;margin:0"><b>{{ avg if avg is not none else '-' }}</b></p>{% if top %}<p class="muted">Most reported kind of problem: {{ top }}</p>{% endif %}
-<div class="actions"><button type="button" class="btn dark" data-text="{{ te }}" onclick="speakTelugu(this)">🔊 Listen to the summary in Telugu</button></div></article>{% endblock %}
+{% extends "base.html" %}
+
+{% block voice %}
+    {{ te }}
+{% endblock %}
+
+{% block title %}Summary{% endblock %}
+
+{% block content %}
+
+<section class="intro">
+    <h1>This week's summary</h1>
+
+    <p>
+        A short picture of what has happened in Kaza.
+        Good to read aloud at a Gram Sabha.
+    </p>
+</section>
+
+<section class="strip">
+    <div class="stat">
+        <b>{{ s.week }}</b>
+        <span>New reports this week</span>
+    </div>
+
+    <div class="stat">
+        <b>{{ s.checked }}</b>
+        <span>Checked by volunteers</span>
+    </div>
+
+    <div class="stat">
+        <b>{{ s.resolved }}</b>
+        <span>Resolved</span>
+    </div>
+
+    <div class="stat">
+        <b>{{ s.overdue }}</b>
+        <span>Open for 7+ days</span>
+    </div>
+</section>
+
+<article class="panel" style="margin-top:18px">
+    <h3>Average days to fix</h3>
+
+    <p style="font-size:1.6rem;margin:0">
+        <b>{{ avg if avg is not none else '-' }}</b>
+    </p>
+
+    {% if top %}
+        <p class="muted">
+            Most reported kind of problem: {{ top }}
+        </p>
+    {% endif %}
+
+    <div class="actions">
+        <button
+            type="button"
+            class="btn dark"
+            data-text="{{ te }}"
+            onclick="speakTelugu(this)"
+        >
+            🔊 Listen to the summary in Telugu
+        </button>
+    </div>
+</article>
+
+{% endblock %}

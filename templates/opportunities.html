@@ -1,2 +1,30 @@
-{% extends "base.html" %}{% block voice %}ఇక్కడ రైతులు, విద్యార్థులు, పెన్షన్ కోసం ఉపయోగపడే గైడ్‌లు ఉన్నాయి. చదవండి బటన్ నొక్కితే వివరాలు వస్తాయి. వెబ్‌సైట్ తెరవండి నొక్కితే అధికారిక వెబ్‌సైట్ కొత్త ట్యాబ్‌లో తెరుచుకుంటుంది.{% endblock %}{% block title %}Resources{% endblock %}{% block content %}<section class="intro"><h1>Resources & opportunities</h1><p>Guides written for Kaza villagers and official websites. Verify eligibility and dates with the office before you apply.</p></section>
-<section class="resources">{% for r in items %}{% include "_res.html" %}{% endfor %}</section>{% endblock %}
+{% extends "base.html" %}
+
+{% block voice %}
+ఇక్కడ రైతులు, విద్యార్థులు, పెన్షన్ కోసం ఉపయోగపడే గైడ్‌లు ఉన్నాయి.
+చదవండి బటన్ నొక్కితే వివరాలు వస్తాయి.
+వెబ్‌సైట్ తెరవండి నొక్కితే అధికారిక వెబ్‌సైట్ కొత్త ట్యాబ్‌లో తెరుచుకుంటుంది.
+{% endblock %}
+
+{% block title %}
+Resources
+{% endblock %}
+
+{% block content %}
+
+<section class="intro">
+    <h1>Resources & opportunities</h1>
+
+    <p>
+        Guides written for Kaza villagers and official websites.
+        Verify eligibility and dates with the office before you apply.
+    </p>
+</section>
+
+<section class="resources">
+    {% for r in items %}
+        {% include "_res.html" %}
+    {% endfor %}
+</section>
+
+{% endblock %}
