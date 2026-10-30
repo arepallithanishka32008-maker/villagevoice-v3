@@ -1,51 +1,22 @@
 {% extends "base.html" %}
-
 {% block content %}
-
-<section class="login">
+  <section class="login">
     <div>
-        <small>ADMINISTRATION</small>
-
-        <h1>Manage local information with care.</h1>
-
-        <p class="muted">
-            Maintain project records and review community submissions.
-        </p>
+      <small>ADMINISTRATION</small>
+      <h1>Manage local information with care.</h1>
+      <p class="muted">Maintain project records and review community submissions.</p>
     </div>
-
     <form class="panel form" method="post">
-        <small>SECURE AREA</small>
-
-        <h2>Admin sign in</h2>
-
-        <label>
-            Username
-            <input
-                name="username"
-                required
-                autocomplete="username"
-            >
-        </label>
-
-        <label>
-            Password
-            <input
-                type="password"
-                name="password"
-                required
-                autocomplete="current-password"
-            >
-        </label>
-
-        <button class="btn">
-            Sign in →
-        </button>
-
-        <p class="muted">
-            Use the admin password shown in the terminal on first run,
-            or the ADMIN_PASSWORD you set.
-        </p>
+      <small>SECURE AREA</small>
+      <h2>Admin sign in</h2>
+      <label>Username
+        <input name="username" required autocomplete="username">
+      </label>
+      <label>Password
+        <input type="password" name="password" required autocomplete="current-password">
+      </label>
+      <button class="btn">Sign in →</button>
+      <p class="muted">Use the admin password shown in the terminal on first run, or the ADMIN_PASSWORD you set.</p>
     </form>
-</section>
-
+  </section>
 {% endblock %}

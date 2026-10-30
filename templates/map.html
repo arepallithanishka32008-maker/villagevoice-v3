@@ -1,303 +1,186 @@
 {% extends "base.html" %}
-
-{% block voice %}
-ఇది కాజా ఊరి మ్యాప్. ఎర్ర గీత లోపల ఉన్నదే కాజా ఊరు. పక్కన ఉన్న ఊర్ల పేర్లు కూడా కనిపిస్తాయి. సమస్యలు పిన్‌లుగా కనిపిస్తాయి. పిన్ నొక్కితే వివరాలు, దారి వస్తాయి. కింద ఉన్న బాణం బటన్లతో మ్యాప్‌ను కదపవచ్చు.
-{% endblock %}
-
-{% block title %}
-Kaza map
-{% endblock %}
-
+{% block voice %}ఇది కాజా ఊరి మ్యాప్. ఎర్ర గీత లోపల ఉన్నదే కాజా ఊరు. పక్కన ఉన్న ఊర్ల పేర్లు కూడా కనిపిస్తాయి. సమస్యలు పిన్‌లుగా కనిపిస్తాయి. పిన్ నొక్కితే వివరాలు, దారి వస్తాయి. కింద ఉన్న బాణం బటన్లతో మ్యాప్‌ను కదపవచ్చు.{% endblock %}
+{% block title %}Kaza map{% endblock %}
 {% block head %}
-<link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
->
-<link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"
->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 {% endblock %}
-
 {% block content %}
-
-<section class="intro">
+  <section class="intro">
     <h1>Kaza village map</h1>
-    <p>
-        The red outline is Kaza village. Satellite view, problem pins
-        and directions are limited to Kaza.
-    </p>
-</section>
-
-<section class="maplayout">
+    <p>The red outline is Kaza village. Satellite view, problem pins and directions are limited to Kaza.</p>
+  </section>
+  <section class="maplayout">
     <article class="panel">
-        <div class="mapbar">
-            <button class="outline" id="reload">
-                ↻ Reload map
-            </button>
-
-            <button class="outline" id="here">
-                📍 My location
-            </button>
-
-            <a
-                class="outline"
+      <div class="mapbar">
+        <button class="outline" id="reload">↻ Reload map</button>
+        <button class="outline" id="here">📍 My location</button>
+        <a
+          class="outline"
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.google.com/maps/dir/?api=1&destination={{ kaza.center[0] }},{{ kaza.center[1] }}&travelmode=driving"
+        >Directions to Kaza ↗</a>
+        <span class="muted" id="stamp"></span>
+      </div>
+      <div class="actions" style="margin:0 0 10px">
+        <button
+          type="button"
+          class="outline sm"
+          data-text="కాజా ఊరిలో ప్రాంతాలు: కాజా, పద్దరాయుడుతోట, కొల్లపాలెం, రాచర్లపాలెం. చుట్టూ ఉన్న ఊర్లు: పెదముత్తేవి, కోసూరు, మల్లంపల్లి, బొల్లపాడు, పోలవరం, రాయవరం, కంచకోడుర్, మద్దిపట్ల, మల్లవోలు. సమస్యల పిన్‌లు మ్యాప్‌లో కనిపిస్తాయి."
+          onclick="speakTelugu(this)"
+        >🔊 Listen: places of Kaza</button>
+      </div>
+      <div id="largeMap"></div>
+      <p class="legend">
+        <span class="dot" style="background:#e8b54a"></span>Verified
+        <span class="dot" style="background:#6e91ce"></span>With office / in progress
+        <span class="dot" style="background:#26765c"></span>Resolved</p>
+    </article>
+    <aside class="panel">
+      <h3>Places in Kaza</h3>
+      <p class="muted">Localities inside the Google Maps outline of Kaza. Positions are approximate. Check with the Gram Panchayat.</p>
+      <div class="chips">
+        {% for l in kaza.localities %}
+          <div class="loc">
+            <div>
+              <b>{{ l.name }}</b>
+            </div>
+            <div class="row">
+              <a
+                class="outline sm"
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://www.google.com/maps/dir/?api=1&destination={{ kaza.center[0] }},{{ kaza.center[1] }}&travelmode=driving"
-            >
-                Directions to Kaza ↗
-            </a>
-
-            <span class="muted" id="stamp"></span>
-        </div>
-
-        <div class="actions" style="margin:0 0 10px">
-            <button
-                type="button"
+                href="https://www.google.com/maps/dir/?api=1&destination={{ l.lat }},{{ l.lng }}&travelmode=driving"
+              >Directions</a>
+              <a
                 class="outline sm"
-                data-text="కాజా ఊరిలో ప్రాంతాలు: కాజా, పద్దరాయుడుతోట, కొల్లపాలెం, రాచర్లపాలెం. చుట్టూ ఉన్న ఊర్లు: పెదముత్తేవి, కోసూరు, మల్లంపల్లి, బొల్లపాడు, పోలవరం, రాయవరం, కంచకోడుర్, మద్దిపట్ల, మల్లవోలు. సమస్యల పిన్‌లు మ్యాప్‌లో కనిపిస్తాయి."
-                onclick="speakTelugu(this)"
-            >
-                🔊 Listen: places of Kaza
-            </button>
-        </div>
-
-        <div id="largeMap"></div>
-
-        <p class="legend">
-            <span class="dot" style="background:#e8b54a"></span>
-            Verified
-
-            <span class="dot" style="background:#6e91ce"></span>
-            With office / in progress
-
-            <span class="dot" style="background:#26765c"></span>
-            Resolved
-        </p>
-    </article>
-
-    <aside class="panel">
-        <h3>Places in Kaza</h3>
-
-        <p class="muted">
-            Localities inside the Google Maps outline of Kaza.
-            Positions are approximate. Check with the Gram Panchayat.
-        </p>
-
-        <div class="chips">
-            {% for l in kaza.localities %}
-                <div class="loc">
-                    <div>
-                        <b>{{ l.name }}</b>
-                    </div>
-
-                    <div class="row">
-                        <a
-                            class="outline sm"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href="https://www.google.com/maps/dir/?api=1&destination={{ l.lat }},{{ l.lng }}&travelmode=driving"
-                        >
-                            Directions
-                        </a>
-
-                        <a
-                            class="outline sm"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href="https://www.google.com/maps/@?api=1&map_action=map&center={{ l.lat }},{{ l.lng }}&zoom=17&basemap=satellite"
-                        >
-                            Satellite view ↗
-                        </a>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-
-        <h3 style="margin-top:20px">
-            Public places in Kaza
-        </h3>
-
-        <p class="muted">
-            From the Krishna District public utilities list.
-            Tap to find on Google Maps.
-        </p>
-
-        <div class="facs">
-            {% for f in facilities %}
-                <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href="https://www.google.com/maps/search/?api=1&query={{ (f ~ ', Kaza, Andhra Pradesh')|urlencode }}"
-                >
-                    {{ f }}
-                </a>
-            {% endfor %}
-        </div>
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://www.google.com/maps/@?api=1&map_action=map&center={{ l.lat }},{{ l.lng }}&zoom=17&basemap=satellite"
+              >Satellite view ↗</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <h3 style="margin-top:20px">Public places in Kaza</h3>
+      <p class="muted">From the Krishna District public utilities list. Tap to find on Google Maps.</p>
+      <div class="facs">
+        {% for f in facilities %}
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://www.google.com/maps/search/?api=1&query={{ (f ~ ', Kaza, Andhra Pradesh')|urlencode }}"
+          >{{ f }}</a>
+        {% endfor %}
+      </div>
     </aside>
-</section>
-
-<article class="panel" style="margin-top:0">
+  </section>
+  <article class="panel" style="margin-top:0">
     <h3>Google Maps satellite view of Kaza</h3>
-
     <iframe
-        class="gframe"
-        title="Google Maps satellite view of Kaza"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade"
-        src="https://maps.google.com/maps?q={{ kaza.center[0] }},{{ kaza.center[1] }}&t=k&z=14&output=embed"
+      class="gframe"
+      title="Google Maps satellite view of Kaza"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      src="https://maps.google.com/maps?q={{ kaza.center[0] }},{{ kaza.center[1] }}&t=k&z=14&output=embed"
     ></iframe>
-</article>
-
+  </article>
 {% endblock %}
-
 {% block scripts %}
-
-<script>
-    ensureLeaflet(function() {
+  <script>
+    ensureLeaflet(
+      function () {
         const KD = {{ kaza|tojson }};
-        const te = document.documentElement.lang === 'te';
-
-        const m = L.map('largeMap', {
-            minZoom: 12,
-            maxZoom: 19,
-            maxBounds: KD.maxbounds,
-            maxBoundsViscosity: .6
+        const te = document.documentElement.lang === "te";
+        const m = L.map("largeMap", {
+          minZoom: 12,
+          maxZoom: 19,
+          maxBounds: KD.maxbounds,
+          maxBoundsViscosity: 0.6,
         });
-
         kazaLayers(m, KD);
         L.control.scale().addTo(m);
-
         const poly = L.polygon(KD.boundary, {
-            color: '#ff5a4d',
-            weight: 3,
-            dashArray: '2 8',
-            lineCap: 'round',
-            fillColor: '#2c7d56',
-            fillOpacity: .06
+          color: "#ff5a4d",
+          weight: 3,
+          dashArray: "2 8",
+          lineCap: "round",
+          fillColor: "#2c7d56",
+          fillOpacity: 0.06,
         }).addTo(m);
-
-        m.fitBounds(poly.getBounds(), {
-            padding: [10, 10]
-        });
-
-        addPanPad(m, () => m.fitBounds(poly.getBounds(), {
-            padding: [10, 10]
-        }));
-
+        m.fitBounds(poly.getBounds(), { padding: [10, 10] });
+        addPanPad(m, () => m.fitBounds(poly.getBounds(), { padding: [10, 10] }));
         const layer = L.layerGroup().addTo(m);
-
-        const col = {
-            verified: '#e8b54a',
-            resolved: '#26765c'
-        };
-
+        const col = { verified: "#e8b54a", resolved: "#26765c" };
         function pop(i) {
-            const d = document.createElement('div');
-            const b = document.createElement('b');
-
-            b.textContent = i.category;
-
-            const a = document.createElement('a');
-
-            a.href =
-                'https://www.google.com/maps/dir/?api=1&destination=' +
-                i.lat + ',' + i.lng + '&travelmode=driving';
-
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-            a.textContent = 'Get directions ↗';
-
-            d.append(
-                b,
-                document.createElement('br'),
-                document.createTextNode(i.village + ', ' + i.area),
-                document.createElement('br'),
-                document.createTextNode(
-                    i.status_name + ' · ' + i.complaint_id
-                ),
-                document.createElement('br'),
-                a
-            );
-
-            return d;
+          const d = document.createElement("div"),
+            b = document.createElement("b");
+          b.textContent = i.category;
+          const a = document.createElement("a");
+          a.href =
+            "https://www.google.com/maps/dir/?api=1&destination=" +
+            i.lat +
+            "," +
+            i.lng +
+            "&travelmode=driving";
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.textContent = "Get directions ↗";
+          d.append(
+            b,
+            document.createElement("br"),
+            document.createTextNode(i.village + ", " + i.area),
+            document.createElement("br"),
+            document.createTextNode(i.status_name + " · " + i.complaint_id),
+            document.createElement("br"),
+            a,
+          );
+          return d;
         }
-
         async function load() {
-            try {
-                const a = await (
-                    await fetch('/api/map', {
-                        cache: 'no-store'
-                    })
-                ).json();
-
-                layer.clearLayers();
-
-                a.forEach(i =>
-                    L.circleMarker(
-                        [i.lat, i.lng],
-                        {
-                            radius: 9,
-                            weight: 2,
-                            color: '#fff',
-                            fillColor: col[i.status] || '#6e91ce',
-                            fillOpacity: .95
-                        }
-                    )
-                    .addTo(layer)
-                    .bindPopup(pop(i))
-                );
-
-                document.getElementById('stamp').textContent =
-                    a.length + ' pins · ' +
-                    new Date().toLocaleTimeString();
-
-            } catch (e) {
-                document.getElementById('stamp').textContent =
-                    'Could not reload. Check your internet.';
-            }
+          try {
+            const a = await (await fetch("/api/map", { cache: "no-store" })).json();
+            layer.clearLayers();
+            a.forEach(i =>
+              L.circleMarker([i.lat, i.lng], {
+                radius: 9,
+                weight: 2,
+                color: "#fff",
+                fillColor: col[i.status] || "#6e91ce",
+                fillOpacity: 0.95,
+              })
+                .addTo(layer)
+                .bindPopup(pop(i)),
+            );
+            document.getElementById("stamp").textContent =
+              a.length + " pins · " + new Date().toLocaleTimeString();
+          } catch (e) {
+            document.getElementById("stamp").textContent = "Could not reload. Check your internet.";
+          }
         }
-
-        document.getElementById('reload').onclick = load;
-
+        document.getElementById("reload").onclick = load;
         load();
         setInterval(load, 30000);
-
-        document.getElementById('here').onclick = () =>
-            navigator.geolocation
-                ? navigator.geolocation.getCurrentPosition(
-                    p => {
-                        const ll = [
-                            p.coords.latitude,
-                            p.coords.longitude
-                        ];
-
-                        L.circleMarker(ll, {
-                            radius: 8,
-                            color: '#2a6b8c'
-                        })
-                        .addTo(m)
-                        .bindTooltip('You are here');
-
-                        if (L.latLngBounds(KD.bounds).contains(ll)) {
-                            m.setView(ll, 17);
-                        } else {
-                            alert(
-                                te
-                                    ? 'మీరు కాజా వెలుపల ఉన్నారు.'
-                                    : 'You are outside Kaza.'
-                            );
-                        }
-                    },
-                    () => alert('Location blocked.')
-                )
-                : alert('GPS not available.');
-
-    }, function() {
-        document.getElementById('largeMap').innerHTML =
-            '<div class="notice">The map could not load. Check your internet and reload the page.</div>';
-    });
-</script>
-
+        document.getElementById("here").onclick = () =>
+          navigator.geolocation
+            ? navigator.geolocation.getCurrentPosition(
+                p => {
+                  const ll = [p.coords.latitude, p.coords.longitude];
+                  L.circleMarker(ll, { radius: 8, color: "#2a6b8c" })
+                    .addTo(m)
+                    .bindTooltip("You are here");
+                  if (L.latLngBounds(KD.bounds).contains(ll)) m.setView(ll, 17);
+                  else alert(te ? "మీరు కాజా వెలుపల ఉన్నారు." : "You are outside Kaza.");
+                },
+                () => alert("Location blocked."),
+              )
+            : alert("GPS not available.");
+      },
+      function () {
+        document.getElementById("largeMap").innerHTML =
+          '<div class="notice">The map could not load. Check your internet and reload the page.</div>';
+      },
+    );
+  </script>
 {% endblock %}

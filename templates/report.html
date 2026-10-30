@@ -1,464 +1,262 @@
 {% extends "base.html" %}
-
-{% block voice %}
-ఫిర్యాదు చేయడానికి ముందు మ్యాప్‌లో సమస్య ఉన్న చోట నొక్కండి.
-తర్వాత ఊరు, సమస్య రకం, వీధి పేరు ఎంచుకోండి.
-సమస్యను రాయండి, లేదా మైక్ నొక్కి తెలుగులో చెప్పండి.
-ఫోటో పెట్టండి. చివరగా ఫిర్యాదు పంపండి బటన్ నొక్కండి.
-{% endblock %}
-
-{% block title %}
-Report a problem
-{% endblock %}
-
+{% block voice %}ఫిర్యాదు చేయడానికి ముందు మ్యాప్‌లో సమస్య ఉన్న చోట నొక్కండి. తర్వాత ఊరు, సమస్య రకం, వీధి పేరు ఎంచుకోండి. సమస్యను రాయండి, లేదా మైక్ నొక్కి తెలుగులో చెప్పండి. ఫోటో పెట్టండి. చివరగా ఫిర్యాదు పంపండి బటన్ నొక్కండి.{% endblock %}
+{% block title %}Report a problem{% endblock %}
 {% block head %}
-<link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
->
-<link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"
->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
 {% endblock %}
-
 {% block content %}
-
-<section class="intro">
+  <section class="intro">
     <h1>Report a village problem</h1>
-
-    <p>
-        Mark the exact spot, describe the problem, and add a photo.
-        Volunteers check each report and share verified ones with
-        the Gram Panchayat and Grama Sachivalayam.
-    </p>
-
+    <p>Mark the exact spot, describe the problem, and add a photo. Volunteers check each report and share verified ones with the Gram Panchayat and Grama Sachivalayam.</p>
     <button
-        type="button"
-        class="outline"
-        data-text="ముందు మ్యాప్‌లో సమస్య ఉన్న చోట నొక్కి పిన్ వేయండి. తర్వాత గ్రామం, వర్గం, వీధి పేరు ఎంచుకోండి. మైక్ బటన్ నొక్కి తెలుగులో మాట్లాడి సమస్యను చెప్పవచ్చు. ఫోటో జోడించి, రిపోర్ట్ పంపండి బటన్ నొక్కండి."
-        onclick="speakTelugu(this)"
-    >
-        🔊 Listen to instructions in Telugu
-    </button>
-</section>
-
-<form
-    class="panel form"
-    method="post"
-    action="/report"
-    enctype="multipart/form-data"
->
+      type="button"
+      class="outline"
+      data-text="ముందు మ్యాప్‌లో సమస్య ఉన్న చోట నొక్కి పిన్ వేయండి. తర్వాత గ్రామం, వర్గం, వీధి పేరు ఎంచుకోండి. మైక్ బటన్ నొక్కి తెలుగులో మాట్లాడి సమస్యను చెప్పవచ్చు. ఫోటో జోడించి, రిపోర్ట్ పంపండి బటన్ నొక్కండి."
+      onclick="speakTelugu(this)"
+    >🔊 Listen to instructions in Telugu</button>
+  </section>
+  <form class="panel form" method="post" action="/report" enctype="multipart/form-data">
     <div>
-        <h3>Where is the problem?</h3>
-
-        <p class="muted">
-            Tap inside the red outline to drop the pin, or drag the pin.
-            The button jumps to where you are standing.
-        </p>
-
-        <div id="pickMap"></div>
-
-        <div class="actions" style="margin-bottom:0">
-            <button type="button" class="outline" id="gps">
-                📍 Use my location
-            </button>
-
-            <a
-                class="quiet"
-                id="viewG"
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                hidden
-            >
-                Check in Google Maps ↗
-            </a>
-
-            <span class="muted" id="gpsMsg" aria-live="polite">
-                No pin yet.
-            </span>
-        </div>
-
-        <div class="near" id="near" hidden></div>
+      <h3>Where is the problem?</h3>
+      <p class="muted">Tap inside the red outline to drop the pin, or drag the pin. The button jumps to where you are standing.</p>
+      <div id="pickMap"></div>
+      <div class="actions" style="margin-bottom:0">
+        <button type="button" class="outline" id="gps">📍 Use my location</button>
+        <a
+          class="quiet"
+          id="viewG"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          hidden
+        >Check in Google Maps ↗</a>
+        <span class="muted" id="gpsMsg" aria-live="polite">No pin yet.</span>
+      </div>
+      <div class="near" id="near" hidden></div>
     </div>
-
     <input type="hidden" name="latitude" id="lat">
     <input type="hidden" name="longitude" id="lng">
     <input type="hidden" name="accuracy" id="acc">
-
     <h3>What is the problem?</h3>
-
     <div class="twocol">
-        <label>
-            Village
-
-            <select name="village">
-                <optgroup label="Kaza">
-                    {% for v in villages if v in kaza_places %}
-                        <option
-                            value="{{ v }}"
-                            {% if (f.get('village') or 'Kaza') == v %}selected{% endif %}
-                        >
-                            {{ v }}
-                        </option>
-                    {% endfor %}
-                </optgroup>
-
-                <optgroup label="Nearby villages">
-                    {% for v in villages if v not in kaza_places %}
-                        <option
-                            value="{{ v }}"
-                            {% if f.get('village') == v %}selected{% endif %}
-                        >
-                            {{ v }}
-                        </option>
-                    {% endfor %}
-                </optgroup>
-            </select>
-        </label>
-
-        <label>
-            Category
-
-            <select name="category" id="category" onchange="checkNear()">
-                {% for c in categories %}
-                    <option
-                        value="{{ c }}"
-                        {% if f.get('category') == c %}selected{% endif %}
-                    >
-                        {{ c }}
-                    </option>
-                {% endfor %}
-            </select>
-        </label>
+      <label>Village
+        <select name="village">
+          <optgroup label="Kaza">
+            {% for v in villages if v in kaza_places %}
+              <option value="{{ v }}" {{ 'selected' if (f.get('village') or 'Kaza') == v }}>{{ v }}</option>
+            {% endfor %}
+          </optgroup>
+          <optgroup label="Nearby villages">
+            {% for v in villages if v not in kaza_places %}
+              <option value="{{ v }}" {{ 'selected' if f.get('village') == v }}>{{ v }}</option>
+            {% endfor %}
+          </optgroup>
+        </select>
+      </label>
+      <label>Category
+        <select name="category" id="category" onchange="checkNear()">
+          {% for c in categories %}
+            <option value="{{ c }}" {{ 'selected' if f.get('category') == c }}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </label>
     </div>
-
-    <label>
-        Street or landmark
-
-        <input
-            name="area"
-            maxlength="150"
-            value="{{ f.get('area', '') }}"
-            placeholder="e.g. near the church"
-            required
-        >
+    <label>Street or landmark
+      <input
+        name="area"
+        maxlength="150"
+        value="{{ f.get('area','') }}"
+        placeholder="e.g. near the church"
+        required
+      >
     </label>
-
-    <label>
-        Describe the problem
-
-        <textarea
-            id="desc"
-            name="description"
-            rows="5"
-            minlength="10"
-            maxlength="3000"
-            required
-        >{{ f.get('description', '') }}</textarea>
+    <label>Describe the problem
+      <textarea
+        id="desc"
+        name="description"
+        rows="5"
+        minlength="10"
+        maxlength="3000"
+        required
+      >{{ f.get('description','') }}</textarea>
     </label>
-
     <div class="actions" style="margin:0">
-        <button
-            type="button"
-            class="outline"
-            data-target="desc"
-            data-lang="te-IN"
-            data-label="🎙️ తెలుగులో మాట్లాడండి"
-            onclick="dictate(this)"
-        >
-            🎙️ తెలుగులో మాట్లాడండి
-        </button>
-
-        <button
-            type="button"
-            class="outline"
-            data-target="desc"
-            data-lang="en-IN"
-            data-label="🎙️ Speak in English"
-            onclick="dictate(this)"
-        >
-            🎙️ Speak in English
-        </button>
-
-        <button
-            type="button"
-            class="outline"
-            data-target="desc"
-            data-show="teView"
-            onclick="speakTelugu(this)"
-        >
-            🔊 Read in Telugu
-        </button>
+      <button
+        type="button"
+        class="outline"
+        data-target="desc"
+        data-lang="te-IN"
+        data-label="🎙️ తెలుగులో మాట్లాడండి"
+        onclick="dictate(this)"
+      >🎙️ తెలుగులో మాట్లాడండి</button>
+      <button
+        type="button"
+        class="outline"
+        data-target="desc"
+        data-lang="en-IN"
+        data-label="🎙️ Speak in English"
+        onclick="dictate(this)"
+      >🎙️ Speak in English</button>
+      <button
+        type="button"
+        class="outline"
+        data-target="desc"
+        data-show="teView"
+        onclick="speakTelugu(this)"
+      >🔊 Read in Telugu</button>
     </div>
-
     <div class="muted" id="teView"></div>
-
-    <label>
-        Photo (optional)
-
-        <input
-            type="file"
-            name="photo"
-            accept="image/jpeg,image/png,image/webp"
-            capture="environment"
-        >
+    <label>Photo (optional)
+      <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" capture="environment">
     </label>
-
-    <div class="notice">
-        Your exact pin is seen only by volunteers and officers, who use it
-        to get directions to the spot. By sending, you agree to share this
-        report with the Gram Panchayat and Grama Sachivalayam.
-    </div>
-
+    <div class="notice">Your exact pin is seen only by volunteers and officers, who use it to get directions to the spot. By sending, you agree to share this report with the Gram Panchayat and Grama Sachivalayam.</div>
     <button class="btn big">Send report</button>
-</form>
-
+  </form>
 {% endblock %}
-
 {% block scripts %}
-<script>
-ensureLeaflet(function () {
-    const KD = {{ kaza|tojson }};
-
-    const map = L.map('pickMap', {
-        minZoom: 12,
-        maxZoom: 19,
-        maxBounds: KD.maxbounds,
-        maxBoundsViscosity: 0.6
-    });
-
-    function inK(la, ln) {
-        const P = KD.check;
-        let r = false;
-
-        for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
+  <script>
+    ensureLeaflet(
+      function () {
+        const KD = {{ kaza|tojson }};
+        const map = L.map("pickMap", {
+          minZoom: 12,
+          maxZoom: 19,
+          maxBounds: KD.maxbounds,
+          maxBoundsViscosity: 0.6,
+        });
+        function inK(la, ln) {
+          const P = KD.check;
+          let r = false;
+          for (let i = 0, j = P.length - 1; i < P.length; j = i++) {
             if (
-                (P[i][0] > la) !== (P[j][0] > la) &&
-                ln < (P[j][1] - P[i][1]) *
-                    (la - P[i][0]) /
-                    (P[j][0] - P[i][0]) +
-                    P[i][1]
-            ) {
-                r = !r;
-            }
+              P[i][0] > la !== P[j][0] > la &&
+              ln < ((P[j][1] - P[i][1]) * (la - P[i][0])) / (P[j][0] - P[i][0]) + P[i][1]
+            )
+              r = !r;
+          }
+          return r;
         }
-
-        return r;
-    }
-
-    kazaLayers(map, KD);
-
-    const outline = L.polygon(KD.boundary, {
-        color: '#ff5a4d',
-        weight: 3,
-        dashArray: '2 8',
-        fillOpacity: 0.04,
-        interactive: false
-    }).addTo(map);
-
-    map.fitBounds(outline.getBounds(), {
-        padding: [10, 10]
-    });
-
-    addPanPad(map, () =>
-        map.fitBounds(outline.getBounds(), {
-            padding: [10, 10]
-        })
-    );
-
-    let pin = null;
-
-    const msg = document.getElementById('gpsMsg');
-    const vg = document.getElementById('viewG');
-
-    const NB = new Set((KD.nearby || []).map(n => n.name));
-
-    function okPin(la, ln) {
-        const B = KD.maxbounds;
-
-        return (
-            la >= B[0][0] &&
-            la <= B[1][0] &&
-            ln >= B[0][1] &&
-            ln <= B[1][1]
-        );
-    }
-
-    function setPin(la, ln, acc) {
-        if (!okPin(la, ln)) {
+        kazaLayers(map, KD);
+        const outline = L.polygon(KD.boundary, {
+          color: "#ff5a4d",
+          weight: 3,
+          dashArray: "2 8",
+          fillOpacity: 0.04,
+          interactive: false,
+        }).addTo(map);
+        map.fitBounds(outline.getBounds(), { padding: [10, 10] });
+        addPanPad(map, () => map.fitBounds(outline.getBounds(), { padding: [10, 10] }));
+        let pin = null;
+        const msg = document.getElementById("gpsMsg"),
+          vg = document.getElementById("viewG");
+        const NB = new Set((KD.nearby || []).map(n => n.name));
+        function okPin(la, ln) {
+          const B = KD.maxbounds;
+          return la >= B[0][0] && la <= B[1][0] && ln >= B[0][1] && ln <= B[1][1];
+        } // anywhere on the map
+        function setPin(la, ln, acc) {
+          if (!okPin(la, ln)) {
             msg.textContent =
-                document.documentElement.lang === 'te'
-                    ? 'ఈ చోటు మీరు ఎంచుకున్న ఊరి పరిధి బయట ఉంది. కాజా అయితే ఎర్ర గీత లోపల, ఇతర ఊరు అయితే ఆ ఊరి దగ్గర నొక్కండి.'
-                    : 'This spot is outside the area for the village you chose. Tap inside the red outline (Kaza) or near that village.';
-
+              document.documentElement.lang === "te"
+                ? "ఈ చోటు మీరు ఎంచుకున్న ఊరి పరిధి బయట ఉంది. కాజా అయితే ఎర్ర గీత లోపల, ఇతర ఊరు అయితే ఆ ఊరి దగ్గర నొక్కండి."
+                : "This spot is outside the area for the village you chose. Tap inside the red outline (Kaza) or near that village.";
             return;
-        }
-
-        if (!pin) {
-            pin = L.marker([la, ln], {
-                draggable: true
-            }).addTo(map);
-
-            pin.on('dragend', () => {
-                const p = pin.getLatLng();
-                setPin(p.lat, p.lng, 0);
+          }
+          if (!pin) {
+            pin = L.marker([la, ln], { draggable: true }).addTo(map);
+            pin.on("dragend", () => {
+              const p = pin.getLatLng();
+              setPin(p.lat, p.lng, 0);
             });
-        } else {
-            pin.setLatLng([la, ln]);
-        }
-
-        lat.value = la;
-        lng.value = ln;
-        document.getElementById('acc').value = acc || '';
-
-        msg.textContent =
-            'Pin set: ' +
+          } else pin.setLatLng([la, ln]);
+          lat.value = la;
+          lng.value = ln;
+          document.getElementById("acc").value = acc || "";
+          msg.textContent =
+            "Pin set: " +
             la.toFixed(5) +
-            ', ' +
+            ", " +
             ln.toFixed(5) +
-            (acc ? ' (±' + Math.round(acc) + ' m)' : '') +
-            (
-                inK(la, ln)
-                    ? ''
-                    : (
-                        document.documentElement.lang === 'te'
-                            ? ' · ఎర్ర గీత బయట ఉంది, అయినా పంపబడుతుంది'
-                            : ' · outside the red line, it will still be sent'
-                    )
-            );
-
-        vg.hidden = false;
-        vg.href =
-            'https://www.google.com/maps/search/?api=1&query=' +
-            la +
-            ',' +
-            ln;
-
-        checkNear();
-    }
-
-    document.querySelector('form.form').addEventListener('submit', e => {
-        if (!lat.value) {
+            (acc ? " (±" + Math.round(acc) + " m)" : "") +
+            (inK(la, ln)
+              ? ""
+              : document.documentElement.lang === "te"
+                ? " · ఎర్ర గీత బయట ఉంది, అయినా పంపబడుతుంది"
+                : " · outside the red line, it will still be sent");
+          vg.hidden = false;
+          vg.href = "https://www.google.com/maps/search/?api=1&query=" + la + "," + ln;
+          checkNear();
+        }
+        document.querySelector("form.form").addEventListener("submit", e => {
+          if (!lat.value) {
             e.preventDefault();
-
             msg.textContent =
-                document.documentElement.lang === 'te'
-                    ? 'ముందు మ్యాప్‌లో పిన్ వేయండి.'
-                    : 'Please drop the pin on the map first.';
-
-            document.getElementById('pickMap').scrollIntoView({
-                behavior: 'smooth',
-                block: 'center'
-            });
-        }
-    });
-
-    map.on('click', e => {
-        setPin(e.latlng.lat, e.latlng.lng, 0);
-    });
-
-    document.getElementById('gps').onclick = () => {
-        if (!navigator.geolocation) {
-            msg.textContent = 'GPS is not available on this device.';
+              document.documentElement.lang === "te"
+                ? "ముందు మ్యాప్‌లో పిన్ వేయండి."
+                : "Please drop the pin on the map first.";
+            document.getElementById("pickMap").scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        });
+        map.on("click", e => setPin(e.latlng.lat, e.latlng.lng, 0));
+        document.getElementById("gps").onclick = () => {
+          if (!navigator.geolocation) {
+            msg.textContent = "GPS is not available on this device.";
             return;
-        }
-
-        msg.textContent = 'Finding location...';
-
-        navigator.geolocation.getCurrentPosition(
+          }
+          msg.textContent = "Finding location...";
+          navigator.geolocation.getCurrentPosition(
             p => {
-                setPin(
-                    p.coords.latitude,
-                    p.coords.longitude,
-                    p.coords.accuracy
-                );
-
-                if (okPin(p.coords.latitude, p.coords.longitude)) {
-                    map.setView(
-                        [p.coords.latitude, p.coords.longitude],
-                        18
-                    );
-                }
+              setPin(p.coords.latitude, p.coords.longitude, p.coords.accuracy);
+              if (okPin(p.coords.latitude, p.coords.longitude))
+                map.setView([p.coords.latitude, p.coords.longitude], 18);
             },
             () => {
-                msg.textContent =
-                    'Location blocked. Tap the map to drop the pin instead.';
+              msg.textContent = "Location blocked. Tap the map to drop the pin instead.";
             },
-            {
-                enableHighAccuracy: true,
-                timeout: 15000
-            }
-        );
-    };
-
-    async function checkNear() {
-        const box = document.getElementById('near');
-
-        if (!lat.value) {
-            return;
-        }
-
-        const a = await (
+            { enableHighAccuracy: true, timeout: 15000 },
+          );
+        };
+        async function checkNear() {
+          const box = document.getElementById("near");
+          if (!lat.value) return;
+          const a = await (
             await fetch(
-                '/api/nearby?lat=' +
+              "/api/nearby?lat=" +
                 lat.value +
-                '&lng=' +
+                "&lng=" +
                 lng.value +
-                '&category=' +
-                encodeURIComponent(
-                    document.getElementById('category').value
-                )
+                "&category=" +
+                encodeURIComponent(document.getElementById("category").value),
             )
-        ).json();
-
-        box.hidden = !a.length;
-        box.replaceChildren();
-
-        if (!a.length) {
-            return;
-        }
-
-        const h = document.createElement('b');
-
-        h.textContent =
-            document.documentElement.lang === 'te'
-                ? 'ఇక్కడ ఇప్పటికే ఇలాంటి సమస్య నమోదైంది. కొత్తది పంపకుండా దానికి మద్దతు ఇవ్వవచ్చు:'
-                : 'A similar problem is already reported here. You can support it instead of sending a new one:';
-
-        box.append(h);
-
-        a.forEach(i => {
-            const p = document.createElement('p');
-
-            p.append(
-                i.complaint_id +
-                ' · ' +
-                i.area +
-                ' · ' +
-                i.status_name +
-                ' '
-            );
-
-            const b = document.createElement('button');
-
-            b.type = 'button';
-            b.className = 'outline sm';
-            b.textContent = '👍';
-
+          ).json();
+          box.hidden = !a.length;
+          box.replaceChildren();
+          if (!a.length) return;
+          const h = document.createElement("b");
+          h.textContent =
+            document.documentElement.lang === "te"
+              ? "ఇక్కడ ఇప్పటికే ఇలాంటి సమస్య నమోదైంది. కొత్తది పంపకుండా దానికి మద్దతు ఇవ్వవచ్చు:"
+              : "A similar problem is already reported here. You can support it instead of sending a new one:";
+          box.append(h);
+          a.forEach(i => {
+            const p = document.createElement("p");
+            p.append(i.complaint_id + " · " + i.area + " · " + i.status_name + " ");
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "outline sm";
+            b.textContent = "👍";
             b.onclick = () => voteMe(i.complaint_id, b);
-
             p.append(b);
             box.append(p);
-        });
-    }
-
-    window.checkNear = checkNear;
-
-}, function () {
-    document.getElementById('pickMap').innerHTML =
-        '<div class="notice">The map could not load. Check your internet and reload the page.</div>';
-});
-</script>
+          });
+        }
+        window.checkNear = checkNear;
+      },
+      function () {
+        document.getElementById("pickMap").innerHTML =
+          '<div class="notice">The map could not load. Check your internet and reload the page.</div>';
+      },
+    );
+  </script>
 {% endblock %}

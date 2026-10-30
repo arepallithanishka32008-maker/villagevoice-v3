@@ -1,137 +1,99 @@
 {% extends "base.html" %}
-
-{% block voice %}
-సమస్య, ఊరి పేరు, పథకం లేదా ఫిర్యాదు ఐడి రాసి వెతకండి.
-{% endblock %}
-
+{% block voice %}సమస్య, ఊరి పేరు, పథకం లేదా ఫిర్యాదు ఐడి రాసి వెతకండి.{% endblock %}
 {% block title %}Search{% endblock %}
-
 {% block content %}
-
-<section class="intro">
+  <section class="intro">
     <h1>Search</h1>
-    <p>
-        Type a word like road, water, a place name, a scheme or a report ID.
-    </p>
-</section>
-
-<form class="search" action="/search" role="search">
+    <p>Type a word like road, water, a place name, a scheme or a report ID.</p>
+  </section>
+  <form class="search" action="/search" role="search">
     <input
-        type="search"
-        name="q"
-        value="{{ q }}"
-        placeholder="Search a problem, place or scheme"
-        aria-label="Search"
-        autofocus
+      type="search"
+      name="q"
+      value="{{ q }}"
+      placeholder="Search a problem, place or scheme"
+      aria-label="Search"
+      autofocus
     >
-
     <button class="btn dark">Search</button>
-</form>
-
-{% if q %}
-
+  </form>
+  {% if q %}
     {% if not (res.problems or res.places or res.projects or res.links) %}
-        <div class="notice">
-            Nothing found. Try another word.
-        </div>
+      <div class="notice">Nothing found. Try another word.</div>
     {% endif %}
-
     {% if res.problems %}
-        <section>
-            <h2>Problems</h2>
-
-            <div class="feed">
-                {% for r in res.problems %}
-                    {% include "_card.html" %}
-                {% endfor %}
-            </div>
-        </section>
+      <section>
+        <h2>Problems</h2>
+        <div class="feed">
+          {% for r in res.problems %}
+            {% include "_card.html" %}
+          {% endfor %}
+        </div>
+      </section>
     {% endif %}
-
     {% if res.places %}
-        <section>
-            <h2>Places</h2>
-
-            <div class="chips">
-                {% for l in res.places %}
-                    <div class="loc">
-                        <div>
-                            <b>{{ l.name }}</b>
-                        </div>
-
-                        <div class="row">
-                            {% if l.lat %}
-                                <a
-                                    class="outline sm"
-                                    href="https://www.google.com/maps/dir/?api=1&destination={{ l.lat }},{{ l.lng }}&travelmode=driving"
-                                >
-                                    Directions
-                                </a>
-
-                                <a
-                                    class="outline sm"
-                                    href="https://www.google.com/maps/@?api=1&map_action=map&center={{ l.lat }},{{ l.lng }}&zoom=17&basemap=satellite"
-                                >
-                                    Satellite view ↗
-                                </a>
-                            {% else %}
-                                <a
-                                    class="outline sm"
-                                    href="https://www.google.com/maps/search/?api=1&query={{ (l.name ~ ', Kaza, Andhra Pradesh')|urlencode }}"
-                                >
-                                    Map
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
+      <section>
+        <h2>Places</h2>
+        <div class="chips">
+          {% for l in res.places %}
+            <div class="loc">
+              <div>
+                <b>{{ l.name }}</b>
+              </div>
+              <div class="row">
+                {% if l.lat %}
+                  <a
+                    class="outline sm"
+                    href="https://www.google.com/maps/dir/?api=1&destination={{ l.lat }},{{ l.lng }}&travelmode=driving"
+                  >Directions</a>
+                  <a
+                    class="outline sm"
+                    href="https://www.google.com/maps/@?api=1&map_action=map&center={{ l.lat }},{{ l.lng }}&zoom=17&basemap=satellite"
+                  >Satellite view ↗</a>
+                {% else %}
+                  <a
+                    class="outline sm"
+                    href="https://www.google.com/maps/search/?api=1&query={{ (l.name ~ ', Kaza, Andhra Pradesh')|urlencode }}"
+                  >Map</a>
+                {% endif %}
+              </div>
             </div>
-        </section>
+          {% endfor %}
+        </div>
+      </section>
     {% endif %}
-
     {% if res.projects %}
-        <section>
-            <h2>Projects</h2>
-
-            <div class="cards">
-                {% for p in res.projects %}
-                    <article class="project">
-                        <div class="pills">
-                            <span>{{ p['category'] }}</span>
-                        </div>
-
-                        <h3>{{ p['title'] }}</h3>
-
-                        <p class="muted">
-                            {{ p['description'] }}
-                        </p>
-
-                        <div class="meta">
-                            <span>{{ p['village'] }}</span>
-                            <b>{{ p['status'] }}</b>
-                        </div>
-
-                        <div class="track">
-                            <i style="width:{{ p['progress'] }}%"></i>
-                        </div>
-                    </article>
-                {% endfor %}
-            </div>
-        </section>
+      <section>
+        <h2>Projects</h2>
+        <div class="cards">
+          {% for p in res.projects %}
+            <article class="project">
+              <div class="pills">
+                <span>{{p['category']}}</span>
+              </div>
+              <h3>{{p['title']}}</h3>
+              <p class="muted">{{p['description']}}</p>
+              <div class="meta">
+                <span>{{p['village']}}</span>
+                <b>{{p['status']}}</b>
+              </div>
+              <div class="track">
+                <i style="width:{{p['progress']}}%"></i>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
     {% endif %}
-
     {% if res.links %}
-        <section>
-            <h2>Schemes and links</h2>
-
-            <div class="resources">
-                {% for r in res.links %}
-                    {% include "_res.html" %}
-                {% endfor %}
-            </div>
-        </section>
+      <section>
+        <h2>Schemes and links</h2>
+        <div class="resources">
+          {% for r in res.links %}
+            {% include "_res.html" %}
+          {% endfor %}
+        </div>
+      </section>
     {% endif %}
-
-{% endif %}
-
+  {% endif %}
 {% endblock %}

@@ -1,53 +1,26 @@
 {% extends "base.html" %}
-
-{% block voice %}
-    {{ voice }}
-{% endblock %}
-
-{% block title %}
-    {{ title }}
-{% endblock %}
-
+{% block voice %}{{ voice }}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 {% block content %}
-
-<section class="intro">
-    <a class="quiet" href="/opportunities">
-        ← Back to resources
-    </a>
-
+  <section class="intro">
+    <a class="quiet" href="/opportunities">← Back to resources</a>
     <h1>{{ title }}</h1>
-
     <p>{{ desc }}</p>
-</section>
-
-<article class="panel">
-
+  </section>
+  <article class="panel">
     {% for line in body.split('\n') if line.strip() %}
-        <p>{{ line }}</p>
+      <p>{{ line }}</p>
     {% endfor %}
-
     <div class="actions">
-        <button
-            type="button"
-            class="outline"
-            data-text="{{ voice }}"
-            onclick="speakTelugu(this)"
-        >
-            🔊 Listen in Telugu
-        </button>
-
-        {% if r['url'] %}
-            <a
-                class="btn dark"
-                href="{{ r['url'] }}"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                Open website ↗
-            </a>
-        {% endif %}
+      <button
+        type="button"
+        class="outline"
+        data-text="{{ voice }}"
+        onclick="speakTelugu(this)"
+      >🔊 Listen in Telugu</button>
+      {% if r['url'] %}
+        <a class="btn dark" href="{{ r['url'] }}" target="_blank" rel="noopener noreferrer">Open website ↗</a>
+      {% endif %}
     </div>
-
-</article>
-
+  </article>
 {% endblock %}

@@ -1,71 +1,26 @@
 {% extends "base.html" %}
-
-{% block voice %}
-మీ పేరు రాసి, మీ ఊరు ఎంచుకోండి. ఒప్పుకున్నట్టు టిక్ చేసి ముందుకు వెళ్లండి.
-{% endblock %}
-
+{% block voice %}మీ పేరు రాసి, మీ ఊరు ఎంచుకోండి. ఒప్పుకున్నట్టు టిక్ చేసి ముందుకు వెళ్లండి.{% endblock %}
 {% block content %}
-
-<section class="intro">
+  <section class="intro">
     <small>CREATE YOUR PROFILE</small>
-
-    <h1
-        data-en="Welcome! Register once"
-        data-te="స్వాగతం! ఒకసారి నమోదు చేసుకోండి"
-    >
-        Welcome! Register once
-    </h1>
-
-    <p>
-        Your mobile number is verified. Add your name and village
-        so volunteers know who reported.
-    </p>
-</section>
-
-<form class="panel form" method="post" action="/register">
-
-    <label>
-        Your name
-        <input
-            name="name"
-            maxlength="80"
-            autocomplete="name"
-            required
-        >
+    <h1 data-en="Welcome! Register once" data-te="స్వాగతం! ఒకసారి నమోదు చేసుకోండి">Welcome! Register once</h1>
+    <p>Your mobile number is verified. Add your name and village so volunteers know who reported.</p>
+  </section>
+  <form class="panel form" method="post" action="/register">
+    <label>Your name
+      <input name="name" maxlength="80" autocomplete="name" required>
     </label>
-
-    <label>
-        Your village
-
-        <select name="village">
-            {% for v in villages %}
-                <option
-                    value="{{ v }}"
-                    {{ 'selected' if v == 'Kaza' }}
-                >
-                    {{ v }}
-                </option>
-            {% endfor %}
-        </select>
+    <label>Your village
+      <select name="village">
+        {% for v in villages %}
+          <option value="{{ v }}" {{ 'selected' if v == 'Kaza' }}>{{ v }}</option>
+        {% endfor %}
+      </select>
     </label>
-
     <label style="flex-direction:row;gap:10px;align-items:flex-start">
-        <input
-            type="checkbox"
-            name="agree"
-            value="1"
-            style="width:auto"
-            required
-        >
-
-        <span>
-            I agree that my name and mobile number are used only
-            to verify my reports. They are not shown publicly.
-        </span>
+      <input type="checkbox" name="agree" value="1" style="width:auto" required>
+      <span>I agree that my name and mobile number are used only to verify my reports. They are not shown publicly.</span>
     </label>
-
     <button class="btn">Save and continue →</button>
-
-</form>
-
+  </form>
 {% endblock %}
